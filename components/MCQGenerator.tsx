@@ -3,10 +3,6 @@
 
 import { useState, useRef } from "react";
 
-// ---------- কনফিগ ----------
-const GEMINI_MODEL = "gemini-3.5-flash";
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
-
 interface MCQ {
   question: string;
   options: { A: string; B: string; C: string; D: string };
@@ -95,72 +91,38 @@ export default function MCQGenerator({ topic }: Props) {
     resetQuiz();
 
     try {
-      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-      if (!apiKey) throw new Error("Gemini API key missing");
-
-      const parts: any[] = [];
-
-      if (textInput.trim()) {
-        parts.push({ text: textInput.trim() });
-      }
+      let fileBase64 = "";
+      let fileMimeType = "";
 
       if (file) {
-        const base64Data = await toBase64(file);
-        parts.push({
-          inline_data: {
-            mime_type: file.type,
-            data: base64Data,
-          },
-        });
+        fileBase64 = await toBase64(file);
+        fileMimeType = file.type;
       }
 
-      const promptText = `তুমি একজন বিশেষজ্ঞ শিক্ষক। নিচের কনটেন্ট এবং "${topic}" টপিকের জ্ঞান থেকে ৫টি BCS-মানের MCQ বাংলায় তৈরি করো।
-প্রতিটি প্রশ্নে ঠিক ৪টি অপশন থাকবে, অপশন লেবেল সবসময় "A", "B", "C", "D" হবে।
-উত্তর শুধুমাত্র JSON ফরম্যাটে দাও, কোনো অতিরিক্ত টেক্সট বা মার্কডাউন ব্যাকটিক্স ছাড়া।
-ফরম্যাট:
-[
-  {
-    "question": "প্রশ্ন",
-    "options": { "A": "...", "B": "...", "C": "...", "D": "..." },
-    "correctAnswer": "B",
-    "explanation": "সংক্ষিপ্ত বাংলা ব্যাখ্যা"
-  }
-]`;
-
-      parts.push({ text: promptText });
-
-      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+      // ✅ ক্লায়েন্ট থেকে নিজস্ব API route-এ কল – কোনো API key নেই
+      const response = await fetch("/api/generate-mcq", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts }] }),
+        body: JSON.stringify({
+          topic,
+          textInput: textInput.trim(),
+          fileBase64,
+          fileMimeType,
+          count: 5,
+        }),
       });
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error?.message || "API request failed");
-      }
-
       const data = await response.json();
-      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      if (!rawText) throw new Error("API থেকে কোনো কনটেন্ট আসেনি");
 
-      const jsonString = rawText
-        .replace(/```json\s*/gi, "")
-        .replace(/```\s*/g, "")
-        .trim();
-
-      let parsed: MCQ[];
-      try {
-        parsed = JSON.parse(jsonString);
-      } catch {
-        throw new Error("MCQ JSON পার্স করতে ব্যর্থ। আবার চেষ্টা করুন।");
+      if (!response.ok) {
+        throw new Error(data.error || "API request failed");
       }
 
-      if (!Array.isArray(parsed) || parsed.length === 0) {
+      if (!Array.isArray(data.mcqs) || data.mcqs.length === 0) {
         throw new Error("কোনো MCQ তৈরি হয়নি। কনটেন্ট আরও সমৃদ্ধ করুন।");
       }
 
-      setMcqs(parsed);
+      setMcqs(data.mcqs);
     } catch (err: any) {
       setErrorMsg(err.message || "MCQ তৈরিতে অজানা ত্রুটি।");
     } finally {

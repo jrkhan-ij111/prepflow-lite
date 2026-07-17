@@ -17,6 +17,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "টেক্সট বা ফাইল প্রয়োজন" }, { status: 400 });
     }
 
+    // ✅ শুধু GEMINI_API_KEY (কোনো NEXT_PUBLIC_ prefix নেই)
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: "GEMINI_API_KEY missing" }, { status: 500 });
