@@ -1,8 +1,6 @@
 // app/api/generate-mcq/route.ts
 import { NextResponse } from "next/server";
-
-const GEMINI_MODEL = "gemini-3.5-flash";
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+import OpenAI from "openai";
 
 export async function POST(req: Request) {
   try {
@@ -17,33 +15,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "টেক্সট বা ফাইল প্রয়োজন" }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: "GEMINI_API_KEY missing" }, { status: 500 });
+      return NextResponse.json({ error: "OPENAI_API_KEY missing" }, { status: 500 });
     }
 
-    const parts: any[] = [];
-
-    // Add text input if present
-    if (textInput?.trim()) {
-      parts.push({ text: textInput.trim() });
-    }
-
-    // Add file if present (PDF or image)
-    if (fileBase64 && fileMimeType) {
-      parts.push({
-        inline_data: {
-          mime_type: fileMimeType,
-          data: fileBase64,
-        },
-      });
-    }
+    const openai = new OpenAI({ apiKey });
 
     const promptText = `তুমি একজন বিশেষজ্ঞ শিক্ষক ও BCS পরীক্ষার প্রশ্ন-নির্মাতা। নিচের সোর্স কনটেন্ট থেকে "${topic}" টপিকের উপর ${count}টি ইউনিক, সমালোচনামূলক (critical thinking), এবং BCS-মানের MCQ বাংলায় তৈরি করো।
 
 প্রথমে সোর্স কনটেন্টটি বিশ্লেষণ করে এর প্রধান উপ-বিষয়/অংশগুলো চিহ্নিত করো। তারপর মোট ${count}টি MCQ এমনভাবে তৈরি করো যাতে প্রতিটা প্রধান অংশ থেকে অন্তত একটি প্রশ্ন থাকে।
-
-সোর্স কনটেন্ট থেকে খুবই সমালোচনামূলক, BCS পরীক্ষার মানের ট্র্যাপি প্রশ্ন বানাও — শুধু সরাসরি তথ্য জিজ্ঞাসা না করে, ধারণাগত গভীরতা, ব্যতিক্রম, তুলনা, বা সূক্ষ্ম পার্থক্য পরীক্ষা করে এমন প্রশ্ন বানাও।
 
 প্রতিটি প্রশ্নে ঠিক ৪টি অপশন থাকবে, অপশন লেবেল সবসময় "A", "B", "C", "D" হবে।
 প্রতিটি প্রশ্নের জন্য 'difficulty' ফিল্ডে 'easy' অথবা 'hard' ট্যাগ দাও।
@@ -60,29 +41,22 @@ export async function POST(req: Request) {
     "difficulty": "easy",
     "subtopic": "উপ-বিষয়ের নাম"
   }
-]`;
+]
 
-    parts.push({ text: promptText });
+সোর্স টেক্সট:
+${textInput || "(ফাইল থেকে extracted)"}`;
 
-    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts }] }),
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You are a helpful MCQ generator. Always respond with valid JSON only." },
+        { role: "user", content: promptText },
+      ],
+      temperature: 0.7,
+      max_tokens: 2000,
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Gemini API error:", errText);
-      let errMsg = "Gemini API request failed";
-      try {
-        const errData = JSON.parse(errText);
-        errMsg = errData.error?.message || errMsg;
-      } catch {}
-      throw new Error(errMsg);
-    }
-
-    const data = await response.json();
-    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const rawText = completion.choices[0]?.message?.content || "";
     if (!rawText) throw new Error("API থেকে কোনো কনটেন্ট আসেনি");
 
     const jsonString = rawText
@@ -103,7 +77,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ mcqs });
   } catch (error: any) {
-    console.error("MCQ generation error:", error);
+    console.error("OpenAI API error:", error);
     return NextResponse.json(
       { error: error.message || "MCQ তৈরিতে ত্রুটি" },
       { status: 500 }
