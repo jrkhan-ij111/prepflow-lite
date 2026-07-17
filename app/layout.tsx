@@ -3,7 +3,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "PrepFlow",
-  description: "Free MCQ practice app using dummy generator",
+  description: "Free MCQ practice app",
+  manifest: "/manifest.json", // ✅ এটি যোগ করো
   icons: {
     icon: [
       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
@@ -12,11 +13,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="bn">
       <body className="min-h-screen bg-[#FFF8E7]">{children}</body>
