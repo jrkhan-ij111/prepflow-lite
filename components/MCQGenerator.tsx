@@ -1,4 +1,3 @@
-// components/MCQGenerator.tsx
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -63,15 +62,6 @@ function safeRemoveItem(key: string) {
   try { localStorage.removeItem(key); } catch {}
 }
 
-function simpleHash(str: string): string {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash).toString(36);
-}
-
 function getBankKey(topic: string): string {
   return `prepflow_bank_${topic}`;
 }
@@ -131,14 +121,11 @@ function computeMastery(stats: TopicStats): { level: string; score: number } {
   if (stats.totalAttempted === 0) return { level: "শুরু", score: 0 };
   const totalQuestions = Object.keys(stats.perQuestion).length;
   if (totalQuestions < 15) return { level: "শুরু", score: 0 };
-
   const overallAccuracy = (stats.totalCorrect / stats.totalAttempted) * 100;
   const recentHistory = stats.history.slice(-20);
   const recentCorrect = recentHistory.filter(h => h.correct).length;
   const recentAccuracy = recentHistory.length > 0 ? (recentCorrect / recentHistory.length) * 100 : overallAccuracy;
-
   const score = Math.round(overallAccuracy * 0.6 + recentAccuracy * 0.4);
-
   if (score >= 90) return { level: "মাস্টার লেভেল 🏆", score };
   if (score >= 75) return { level: "দক্ষ", score };
   if (score >= 55) return { level: "উন্নতিশীল", score };
@@ -306,8 +293,18 @@ export default function MCQGenerator({ topic }: Props) {
         }),
       });
 
+      // ✅ content-type check to avoid HTML parse errors
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("সার্ভারে একটি সমস্যা হয়েছে, দয়া করে আবার চেষ্টা করুন।");
+      }
+
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "API request failed");
+
+      if (!response.ok) {
+        throw new Error(data.error || "API request failed");
+      }
+
       if (!Array.isArray(data.mcqs) || data.mcqs.length === 0) {
         throw new Error("কোনো MCQ তৈরি হয়নি। কনটেন্ট আরও সমৃদ্ধ করুন।");
       }
