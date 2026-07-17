@@ -1,17 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import MCQGenerator from "@/components/MCQGenerator";
 
 // ---------- Types ----------
-interface MCQ {
-  id: string;
-  question: string;
-  options: string[];
-  correctIndex: number;
-  explanation: string;
-  topic: string;
-}
-
 interface SessionRecord {
   id: string;
   date: string;
@@ -50,50 +42,11 @@ function saveRecord(record: SessionRecord) {
   localStorage.setItem(HISTORY_KEY, JSON.stringify(records));
 }
 
-// ---------- ডামি MCQ জেনারেটর (কোনো API লাগবে না) ----------
-function generateDummyMCQs(sourceText: string, topic: string, count: number = 5): MCQ[] {
-  const sentences = sourceText
-    .split(/[।!?]/)
-    .map(s => s.trim())
-    .filter(s => s.length > 15);
-  if (sentences.length === 0) return [];
-  const mcqs: MCQ[] = [];
-  for (let i = 0; i < count; i++) {
-    const s = sentences[Math.floor(Math.random() * sentences.length)];
-    const question = `নিচের বাক্যটির মূল বক্তব্য কী?\n"${s}…"`;
-    const correct = `বাক্যটি ${topic} সম্পর্কে একটি গুরুত্বপূর্ণ তথ্য প্রদান করে।`;
-    const wrongs = [
-      "এটি একটি সম্পূর্ণ ভুল ধারণা।",
-      "বাক্যটির কোনো নির্দিষ্ট অর্থ নেই।",
-      "উক্ত বাক্যটি অপ্রাসঙ্গিক।"
-    ];
-    const options = [correct, wrongs[0], wrongs[1], wrongs[2]].sort(() => Math.random() - 0.5);
-    const correctIndex = options.indexOf(correct);
-    mcqs.push({
-      id: `q-${i}-${Date.now()}`,
-      question,
-      options,
-      correctIndex,
-      explanation: correct,
-      topic,
-    });
-  }
-  return mcqs;
-}
-
 // ---------- Main App ----------
 export default function Home() {
   const [activeTab, setActiveTab] = useState<"practice" | "progress">("practice");
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
-
-  const [sourceText, setSourceText] = useState("");
-  const [mcqs, setMcqs] = useState<MCQ[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [sessionScores, setSessionScores] = useState<boolean[]>([]);
 
   const [allRecords, setAllRecords] = useState<SessionRecord[]>([]);
 
@@ -131,64 +84,10 @@ export default function Home() {
     return { label: `${d.getDate()}/${d.getMonth() + 1}`, count };
   }).reverse();
 
-  const handleGenerate = () => {
-    if (!sourceText.trim() || !selectedTopic) return;
-    setLoading(true);
-    setErrorMsg("");
-    setMcqs([]);
-    setCurrentIndex(0);
-    setSelectedOption(null);
-    setSessionScores([]);
-    setTimeout(() => {
-      const newMCQs = generateDummyMCQs(sourceText, selectedTopic, 5);
-      if (newMCQs.length === 0) {
-        setErrorMsg("কোনো MCQ তৈরি হয়নি। টেক্সট আরও বড় দিন।");
-        setLoading(false);
-        return;
-      }
-      setMcqs(newMCQs);
-      setLoading(false);
-    }, 500);
-  };
-
-  const handleOptionClick = (idx: number) => {
-    if (selectedOption !== null || !mcqs[currentIndex]) return;
-    setSelectedOption(idx);
-    setSessionScores(prev => [...prev, idx === mcqs[currentIndex].correctIndex]);
-  };
-
-  const handleNext = () => {
-    if (currentIndex + 1 < mcqs.length) {
-      setCurrentIndex(prev => prev + 1);
-      setSelectedOption(null);
-    } else {
-      const correctCount = sessionScores.filter(Boolean).length;
-      const total = mcqs.length;
-      saveRecord({
-        id: crypto.randomUUID(),
-        date: new Date().toISOString(),
-        topic: selectedTopic!,
-        total,
-        correct: correctCount,
-        wrong: total - correctCount,
-        accuracy: Math.round((correctCount / total) * 100),
-      });
-      setSelectedSubject(null);
-      setSelectedTopic(null);
-      setMcqs([]);
-      setSourceText("");
-    }
-  };
-
   const resetToSubjects = () => {
     setSelectedSubject(null);
     setSelectedTopic(null);
-    setMcqs([]);
-    setSourceText("");
   };
-
-  const currentMCQ = mcqs[currentIndex] || null;
-  const isQuizOver = mcqs.length > 0 && currentIndex >= mcqs.length;
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-6 sm:py-10">
@@ -263,106 +162,10 @@ export default function Home() {
                 <span className="text-sm font-medium text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
                   {selectedTopic}
                 </span>
-                {mcqs.length > 0 && !isQuizOver && (
-                  <div className="text-sm text-gray-600">
-                    {currentIndex + 1}/{mcqs.length} · {sessionScores.filter(Boolean).length} সঠিক
-                  </div>
-                )}
               </div>
 
-              {mcqs.length === 0 && !loading && (
-                <div className="bg-white rounded-2xl shadow-sm border border-amber-200 p-6">
-                  <h2 className="font-bold text-lg text-amber-800 mb-2">{selectedTopic}</h2>
-                  <textarea
-                    value={sourceText}
-                    onChange={e => setSourceText(e.target.value)}
-                    rows={6}
-                    className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent"
-                    placeholder="এখানে আপনার নোট/টেক্সট পেস্ট করুন (ডামি MCQ তৈরি হবে)"
-                  />
-                  {errorMsg && <p className="text-red-600 text-sm mt-2">{errorMsg}</p>}
-                  <button
-                    onClick={handleGenerate}
-                    disabled={loading || !sourceText.trim()}
-                    className="mt-4 w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl disabled:opacity-50 transition"
-                  >
-                    {loading ? "MCQ তৈরি হচ্ছে..." : "MCQ তৈরি করুন"}
-                  </button>
-                </div>
-              )}
-
-              {loading && (
-                <div className="text-center text-amber-700 mt-10">
-                  <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-300 border-t-amber-600 rounded-full mb-2"></div>
-                  <p>প্রশ্ন তৈরি হচ্ছে...</p>
-                </div>
-              )}
-
-              {currentMCQ && !isQuizOver && (
-                <div className="bg-white rounded-2xl shadow-sm border border-amber-200 overflow-hidden">
-                  <div className="h-2 bg-amber-100">
-                    <div
-                      className="h-full bg-amber-500 transition-all duration-500"
-                      style={{ width: `${((currentIndex + (selectedOption !== null ? 1 : 0)) / mcqs.length) * 100}%` }}
-                    />
-                  </div>
-                  <div className="p-6">
-                    <p className="text-lg font-semibold text-gray-800 mb-4">{currentMCQ.question}</p>
-                    <div className="space-y-2">
-                      {currentMCQ.options.map((opt, idx) => {
-                        let className =
-                          "w-full text-left p-3 rounded-xl border transition bg-white";
-                        if (selectedOption !== null) {
-                          if (idx === currentMCQ.correctIndex) className += " border-green-500 bg-green-50";
-                          else if (idx === selectedOption) className += " border-red-500 bg-red-50";
-                          else className += " opacity-60";
-                        } else {
-                          className += " border-gray-200 hover:bg-amber-50";
-                        }
-                        return (
-                          <button
-                            key={idx}
-                            disabled={selectedOption !== null}
-                            onClick={() => handleOptionClick(idx)}
-                            className={className}
-                          >
-                            {String.fromCharCode(65 + idx)}. {opt}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    {selectedOption !== null && (
-                      <div className="mt-5 p-4 bg-amber-50 rounded-xl border border-amber-200">
-                        <p className={`font-bold text-lg ${selectedOption === currentMCQ.correctIndex ? "text-green-600" : "text-red-500"}`}>
-                          {selectedOption === currentMCQ.correctIndex ? "✓ সঠিক!" : "✗ ভুল"}
-                        </p>
-                        <p className="mt-2 text-sm text-gray-700">{currentMCQ.explanation}</p>
-                        <button
-                          onClick={handleNext}
-                          className="mt-4 w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 rounded-xl transition"
-                        >
-                          {currentIndex + 1 < mcqs.length ? "পরবর্তী প্রশ্ন →" : "ফলাফল দেখুন"}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {isQuizOver && (
-                <div className="bg-white rounded-2xl shadow-sm border border-amber-200 p-8 text-center">
-                  <h2 className="text-2xl font-bold text-amber-800 mb-4">সেশন শেষ</h2>
-                  <p className="text-lg">
-                    সঠিক: {sessionScores.filter(Boolean).length} / {mcqs.length} · নির্ভুলতা: {Math.round((sessionScores.filter(Boolean).length / mcqs.length) * 100)}%
-                  </p>
-                  <button
-                    onClick={resetToSubjects}
-                    className="mt-6 bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-xl font-semibold transition"
-                  >
-                    নতুন বিষয় শুরু করুন
-                  </button>
-                </div>
-              )}
+              {/* ✅ Gemini MCQ Generator */}
+              <MCQGenerator topic={selectedTopic} />
             </div>
           )}
         </div>
