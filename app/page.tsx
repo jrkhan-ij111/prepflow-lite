@@ -177,20 +177,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Claude AI লিংক */}
-      <div className="bg-gradient-to-r from-purple-500 to-indigo-500 rounded-2xl p-4 shadow-md text-center mb-6">
-        <p className="text-white font-medium text-sm mb-2">🤖 কঠিন কিছু বুঝতে চান? Claude AI-কে জিজ্ঞাসা করুন</p>
-        <a
-          href="https://claude.ai"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block bg-white text-purple-700 px-6 py-2 rounded-xl text-sm font-semibold hover:bg-purple-50 transition"
-        >
-          Claude খুলুন →
-        </a>
-        <p className="text-white/70 text-xs mt-1">ফ্রি • কোনো API key লাগবে না</p>
-      </div>
-
       {activeTab === "practice" && (
         <div>
           {!selectedSubject && (
@@ -310,7 +296,6 @@ export default function Home() {
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-amber-800">সার্বিক অগ্রগতি</h2>
 
-          {/* Overall Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="bg-white rounded-xl p-4 shadow-sm border border-amber-200 text-center">
               <p className="text-2xl font-bold text-amber-700">{totalAllQuestions}</p>
@@ -330,7 +315,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* ৩০ দিনের চার্ট */}
           <div className="bg-white rounded-2xl shadow-sm border border-amber-200 p-5 overflow-x-auto">
             <h3 className="font-bold text-lg text-amber-800 mb-3">গত ৩০ দিনের অনুশীলন</h3>
             <div className="flex items-end justify-between gap-1 min-w-[600px]" style={{ height: 100 }}>
@@ -347,7 +331,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Subject-wise Overview */}
           <div className="space-y-4">
             {Object.entries(SUBJECTS).map(([subject, topics]) => {
               const subjectOverviews = overviews.filter(o => topics.includes(o.topic));
@@ -390,6 +373,27 @@ export default function Home() {
                 </div>
               );
             })}
+          </div>
+
+          {/* Claude for PrepFlow */}
+          <div className="bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] rounded-3xl p-8 text-center shadow-2xl border border-white/10">
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <span className="text-3xl">🧠</span>
+              <h2 className="text-2xl font-bold text-white">Claude for PrepFlow</h2>
+            </div>
+            <p className="text-white/70 text-sm mb-5 max-w-md mx-auto">
+              কঠিন টপিক বুঝতে, নোট এক্সপ্লেইন করতে, বা যেকোনো প্রশ্নের উত্তর পেতে Claude AI ব্যবহার করুন — সম্পূর্ণ ফ্রি।
+            </p>
+            <a
+              href="https://claude.ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-white text-[#1a1a2e] px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg"
+            >
+              <span>Claude খুলুন</span>
+              <span>→</span>
+            </a>
+            <p className="text-white/40 text-xs mt-4">কোনো API key লাগবে না • সম্পূর্ণ ফ্রি</p>
           </div>
         </div>
       )}
