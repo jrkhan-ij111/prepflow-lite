@@ -1,13 +1,18 @@
-// components/MCQGenerator.tsx
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface MCQ {
   question: string;
   options: { A: string; B: string; C: string; D: string };
   correctAnswer: string;
   explanation: string;
+}
+
+interface SavedFile {
+  base64: string;
+  mimeType: string;
+  fileName: string;
 }
 
 interface Props {
@@ -33,6 +38,39 @@ function saveResult(topic: string, correct: boolean) {
   localStorage.setItem(RESULTS_KEY, JSON.stringify(results));
 }
 
+// ---------- topic-specific localStorage helpers ----------
+function getStorageKey(base: string, topic: string): string {
+  return `prepflow_${base}_${topic}`;
+}
+
+function safeGetItem(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSetItem(key: string, value: string): boolean {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "QuotaExceededError") {
+      console.warn("localStorage quota exceeded");
+      return false;
+    }
+    return false;
+  }
+}
+
+function safeRemoveItem(key: string) {
+  try {
+    localStorage.removeItem(key);
+  } catch {}
+}
+
+// ---------- MCQGenerator component ----------
 export default function MCQGenerator({ topic }: Props) {
   const [textInput, setTextInput] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -47,6 +85,85 @@ export default function MCQGenerator({ topic }: Props) {
   const [isRevealed, setIsRevealed] = useState(false);
   const [score, setScore] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
+
+  const [savedFileName, setSavedFileName] = useState<string | null>(null);
+  const [fileSizeWarning, setFileSizeWarning] = useState(false);
+
+  // ---------- mount: restore saved state ----------
+  useEffect(() => {
+    const sourceKey = getStorageKey("source", topic);
+    const mcqsKey = getStorageKey("mcqs", topic);
+    const progressKey = getStorageKey("progress", topic);
+    const fileKey = getStorageKey("file", topic);
+
+    const savedSource = safeGetItem(sourceKey);
+    if (savedSource) {
+      setTextInput(savedSource);
+    }
+
+    const savedMcqs = safeGetItem(mcqsKey);
+    if (savedMcqs) {
+      try {
+        const parsed = JSON.parse(savedMcqs);
+        if (Array.isArray(parsed)) setMcqs(parsed);
+      } catch {}
+    }
+
+    const savedProgress = safeGetItem(progressKey);
+    if (savedProgress) {
+      try {
+        const { currentIndex, score, quizFinished } = JSON.parse(savedProgress);
+        if (typeof currentIndex === "number") setCurrentIndex(currentIndex);
+        if (typeof score === "number") setScore(score);
+        if (typeof quizFinished === "boolean") setQuizFinished(quizFinished);
+      } catch {}
+    }
+
+    const savedFile = safeGetItem(fileKey);
+    if (savedFile) {
+      try {
+        const parsed: SavedFile = JSON.parse(savedFile);
+        setSavedFileName(parsed.fileName);
+      } catch {}
+    }
+  }, [topic]);
+
+  // ---------- auto-save progress ----------
+  useEffect(() => {
+    const progressKey = getStorageKey("progress", topic);
+    safeSetItem(progressKey, JSON.stringify({ currentIndex, score, quizFinished }));
+  }, [currentIndex, score, quizFinished, topic]);
+
+  // ---------- save source & mcqs after generation ----------
+  const persistSession = (source: string, fileBase64: string, fileMimeType: string, fileName: string, mcqsData: MCQ[]) => {
+    const sourceKey = getStorageKey("source", topic);
+    const mcqsKey = getStorageKey("mcqs", topic);
+    const fileKey = getStorageKey("file", topic);
+
+    safeSetItem(sourceKey, source);
+    safeSetItem(mcqsKey, JSON.stringify(mcqsData));
+
+    if (fileBase64) {
+      const saved: SavedFile = { base64: fileBase64, mimeType: fileMimeType, fileName };
+      const ok = safeSetItem(fileKey, JSON.stringify(saved));
+      if (!ok) {
+        setFileSizeWarning(true);
+      } else {
+        setSavedFileName(fileName);
+        setFileSizeWarning(false);
+      }
+    }
+  };
+
+  // ---------- clear all topic data ----------
+  const clearTopicStorage = () => {
+    safeRemoveItem(getStorageKey("source", topic));
+    safeRemoveItem(getStorageKey("mcqs", topic));
+    safeRemoveItem(getStorageKey("progress", topic));
+    safeRemoveItem(getStorageKey("file", topic));
+    setSavedFileName(null);
+    setFileSizeWarning(false);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] || null;
@@ -81,7 +198,8 @@ export default function MCQGenerator({ topic }: Props) {
   };
 
   const generateMCQs = async () => {
-    if (!textInput.trim() && !file) {
+    const effectiveText = textInput.trim();
+    if (!effectiveText && !file && !savedFileName) {
       setErrorMsg("দয়া করে টেক্সট দিন অথবা একটি ফাইল সিলেক্ট করুন।");
       return;
     }
@@ -93,19 +211,30 @@ export default function MCQGenerator({ topic }: Props) {
     try {
       let fileBase64 = "";
       let fileMimeType = "";
+      let fileName = "";
 
       if (file) {
         fileBase64 = await toBase64(file);
         fileMimeType = file.type;
+        fileName = file.name;
+      } else if (savedFileName) {
+        // use previously saved file
+        const fileKey = getStorageKey("file", topic);
+        const saved = safeGetItem(fileKey);
+        if (saved) {
+          const parsed: SavedFile = JSON.parse(saved);
+          fileBase64 = parsed.base64;
+          fileMimeType = parsed.mimeType;
+          fileName = parsed.fileName;
+        }
       }
 
-      // ✅ ক্লায়েন্ট থেকে নিজস্ব API route-এ কল – কোনো API key নেই
       const response = await fetch("/api/generate-mcq", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           topic,
-          textInput: textInput.trim(),
+          textInput: effectiveText,
           fileBase64,
           fileMimeType,
           count: 5,
@@ -113,16 +242,13 @@ export default function MCQGenerator({ topic }: Props) {
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "API request failed");
-      }
-
+      if (!response.ok) throw new Error(data.error || "API request failed");
       if (!Array.isArray(data.mcqs) || data.mcqs.length === 0) {
         throw new Error("কোনো MCQ তৈরি হয়নি। কনটেন্ট আরও সমৃদ্ধ করুন।");
       }
 
       setMcqs(data.mcqs);
+      persistSession(effectiveText, fileBase64, fileMimeType, fileName, data.mcqs);
     } catch (err: any) {
       setErrorMsg(err.message || "MCQ তৈরিতে অজানা ত্রুটি।");
     } finally {
@@ -141,9 +267,7 @@ export default function MCQGenerator({ topic }: Props) {
     if (!selectedAnswer || !currentMCQ) return;
     const isCorrect = selectedAnswer === currentMCQ.correctAnswer;
     setIsRevealed(true);
-    if (isCorrect) {
-      setScore((prev) => prev + 1);
-    }
+    if (isCorrect) setScore((prev) => prev + 1);
     saveResult(topic, isCorrect);
   };
 
@@ -157,19 +281,25 @@ export default function MCQGenerator({ topic }: Props) {
     }
   };
 
-  const handleRetry = () => {
-    resetQuiz();
-    setTextInput("");
-    setFile(null);
+  const handleRetry = (clearAll: boolean) => {
+    if (clearAll) {
+      clearTopicStorage();
+      setTextInput("");
+      setFile(null);
+      resetQuiz();
+    } else {
+      // regenerate with same source
+      generateMCQs();
+    }
   };
 
+  // ---------- UI ----------
   return (
     <div className="space-y-6">
+      {/* input form – only if no mcqs */}
       {mcqs.length === 0 && !loading && (
         <div className="bg-white rounded-2xl border border-amber-200 p-5 shadow-sm">
-          <h2 className="text-lg font-bold text-amber-800 mb-3">
-            {topic} – MCQ তৈরি করুন
-          </h2>
+          <h2 className="text-lg font-bold text-amber-800 mb-3">{topic} – MCQ তৈরি করুন</h2>
 
           <textarea
             className="w-full h-32 rounded-xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent resize-none"
@@ -197,34 +327,39 @@ export default function MCQGenerator({ topic }: Props) {
             {file && (
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <span className="truncate max-w-[200px]">{file.name}</span>
-                <button onClick={clearFile} className="text-red-500 hover:underline" disabled={loading}>
-                  ✕
-                </button>
+                <button onClick={clearFile} className="text-red-500 hover:underline" disabled={loading}>✕</button>
+              </div>
+            )}
+            {savedFileName && !file && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <span className="truncate max-w-[200px]">📄 {savedFileName}</span>
               </div>
             )}
           </div>
 
+          {fileSizeWarning && (
+            <p className="mt-2 text-xs text-amber-700">ফাইলটি অনেক বড়, তাই সংরক্ষণ করা যায়নি। শুধু এই সেশনেই ব্যবহার করা যাবে।</p>
+          )}
+
           <button
             onClick={generateMCQs}
-            disabled={loading || (!textInput.trim() && !file)}
+            disabled={loading || (!textInput.trim() && !file && !savedFileName)}
             className="mt-4 w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl disabled:opacity-50 transition"
           >
             {loading ? "তৈরি হচ্ছে..." : "MCQ তৈরি করুন"}
           </button>
-
-          {errorMsg && (
-            <p className="mt-3 text-sm text-red-600 bg-red-50 rounded-lg p-3">{errorMsg}</p>
-          )}
+          {errorMsg && <p className="mt-3 text-sm text-red-600 bg-red-50 rounded-lg p-3">{errorMsg}</p>}
         </div>
       )}
 
       {loading && (
         <div className="text-center text-amber-700 mt-10">
-          <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-300 border-t-amber-600 rounded-full mb-2"></div>
+          <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-300 border-t-amber-600 rounded-full mb-2" />
           <p>Gemini AI প্রশ্ন তৈরি করছে...</p>
         </div>
       )}
 
+      {/* quiz one-at-a-time */}
       {mcqs.length > 0 && !quizFinished && currentMCQ && (
         <div className="bg-white rounded-2xl border border-amber-200 shadow-sm overflow-hidden">
           <div className="h-2 bg-amber-100">
@@ -233,7 +368,6 @@ export default function MCQGenerator({ topic }: Props) {
               style={{ width: `${((currentIndex + (isRevealed ? 1 : 0)) / mcqs.length) * 100}%` }}
             />
           </div>
-
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
@@ -248,7 +382,6 @@ export default function MCQGenerator({ topic }: Props) {
               {Object.entries(currentMCQ.options).map(([key, value]) => {
                 const isCorrectOption = key === currentMCQ.correctAnswer;
                 const isSelected = key === selectedAnswer;
-
                 let optionClass = "border-gray-200 bg-white";
                 if (isRevealed) {
                   if (isCorrectOption) optionClass = "border-green-500 bg-green-50";
@@ -257,7 +390,6 @@ export default function MCQGenerator({ topic }: Props) {
                 } else if (isSelected) {
                   optionClass = "border-amber-500 bg-amber-50";
                 }
-
                 return (
                   <button
                     key={key}
@@ -312,7 +444,6 @@ export default function MCQGenerator({ topic }: Props) {
                     )}
                     <p className="text-sm text-gray-700">{currentMCQ.explanation}</p>
                   </div>
-
                   <button
                     onClick={handleNext}
                     className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 rounded-xl transition"
@@ -322,10 +453,19 @@ export default function MCQGenerator({ topic }: Props) {
                 </div>
               )}
             </div>
+
+            {/* reset from quiz */}
+            <button
+              onClick={() => handleRetry(true)}
+              className="mt-4 text-xs text-gray-500 underline hover:text-red-500"
+            >
+              নতুন করে শুরু করুন
+            </button>
           </div>
         </div>
       )}
 
+      {/* summary screen */}
       {quizFinished && (
         <div className="bg-white rounded-2xl border border-amber-200 p-8 text-center shadow-sm">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 mx-auto mb-4">
@@ -347,12 +487,20 @@ export default function MCQGenerator({ topic }: Props) {
           <p className="text-gray-600 mb-6">
             মোট প্রশ্ন: {mcqs.length} | সঠিক: {score} | ভুল: {mcqs.length - score}
           </p>
-          <button
-            onClick={handleRetry}
-            className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-8 py-3 rounded-xl transition"
-          >
-            আবার চেষ্টা করুন
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={() => handleRetry(false)}
+              className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-xl transition"
+            >
+              একই সোর্স দিয়ে নতুন MCQ বানান
+            </button>
+            <button
+              onClick={() => handleRetry(true)}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-6 py-3 rounded-xl transition"
+            >
+              সম্পূর্ণ নতুন সোর্স দিন
+            </button>
+          </div>
         </div>
       )}
     </div>
