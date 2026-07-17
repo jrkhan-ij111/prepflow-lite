@@ -97,16 +97,13 @@ export default function Home() {
 
   const [allRecords, setAllRecords] = useState<SessionRecord[]>([]);
 
-  // load records for progress tab
   useEffect(() => {
     if (activeTab === "progress") {
       setAllRecords(loadAllRecords());
     }
   }, [activeTab]);
 
-  // stats
   const todayStr = new Date().toISOString().slice(0, 10);
-  const todayRecords = allRecords.filter(r => r.date.startsWith(todayStr));
   const totalQuestions = allRecords.reduce((sum, r) => sum + r.total, 0);
   const totalCorrect = allRecords.reduce((sum, r) => sum + r.correct, 0);
   const overallAccuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
@@ -134,7 +131,6 @@ export default function Home() {
     return { label: `${d.getDate()}/${d.getMonth() + 1}`, count };
   }).reverse();
 
-  // ---------- Handlers ----------
   const handleGenerate = () => {
     if (!sourceText.trim() || !selectedTopic) return;
     setLoading(true);
@@ -166,7 +162,6 @@ export default function Home() {
       setCurrentIndex(prev => prev + 1);
       setSelectedOption(null);
     } else {
-      // save session
       const correctCount = sessionScores.filter(Boolean).length;
       const total = mcqs.length;
       saveRecord({
@@ -178,7 +173,6 @@ export default function Home() {
         wrong: total - correctCount,
         accuracy: Math.round((correctCount / total) * 100),
       });
-      // reset
       setSelectedSubject(null);
       setSelectedTopic(null);
       setMcqs([]);
@@ -198,7 +192,6 @@ export default function Home() {
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-6 sm:py-10">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-amber-800">PrepFlow</h1>
         <div className="flex gap-2">
@@ -218,10 +211,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Practice Tab */}
       {activeTab === "practice" && (
         <div>
-          {/* Subject selection */}
           {!selectedSubject && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {Object.keys(SUBJECTS).map(subject => (
@@ -243,7 +234,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* Sub-topic selection */}
           {selectedSubject && !selectedTopic && (
             <div className="space-y-4">
               <button onClick={() => setSelectedSubject(null)} className="text-amber-700 text-sm underline">
@@ -264,10 +254,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* MCQ Practice Area */}
           {selectedTopic && (
             <div className="space-y-6">
-              {/* Top bar */}
               <div className="flex items-center justify-between">
                 <button onClick={resetToSubjects} className="text-amber-700 text-sm underline">
                   ← বিষয় পরিবর্তন
@@ -282,7 +270,6 @@ export default function Home() {
                 )}
               </div>
 
-              {/* Text input */}
               {mcqs.length === 0 && !loading && (
                 <div className="bg-white rounded-2xl shadow-sm border border-amber-200 p-6">
                   <h2 className="font-bold text-lg text-amber-800 mb-2">{selectedTopic}</h2>
@@ -304,7 +291,6 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Loading */}
               {loading && (
                 <div className="text-center text-amber-700 mt-10">
                   <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-300 border-t-amber-600 rounded-full mb-2"></div>
@@ -312,7 +298,6 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Current MCQ */}
               {currentMCQ && !isQuizOver && (
                 <div className="bg-white rounded-2xl shadow-sm border border-amber-200 overflow-hidden">
                   <div className="h-2 bg-amber-100">
@@ -364,7 +349,6 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Session finished */}
               {isQuizOver && (
                 <div className="bg-white rounded-2xl shadow-sm border border-amber-200 p-8 text-center">
                   <h2 className="text-2xl font-bold text-amber-800 mb-4">সেশন শেষ</h2>
@@ -384,7 +368,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Progress Tab */}
       {activeTab === "progress" && (
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-amber-800">আপনার অগ্রগতি</h2>
