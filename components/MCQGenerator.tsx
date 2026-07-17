@@ -3,7 +3,7 @@
 
 import { useState, useRef } from "react";
 
-// ---------- কনফিগ (সহজে পরিবর্তনযোগ্য) ----------
+// ---------- কনফিগ ----------
 const GEMINI_MODEL = "gemini-3.5-flash";
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
@@ -18,15 +18,39 @@ interface Props {
   topic: string;
 }
 
+// ---------- localStorage helpers ----------
+const RESULTS_KEY = "prepflow_results";
+
+function loadResults(): { topic: string; date: string; correct: boolean }[] {
+  try {
+    const raw = localStorage.getItem(RESULTS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveResult(topic: string, correct: boolean) {
+  const results = loadResults();
+  const today = new Date().toISOString().slice(0, 10);
+  results.push({ topic, date: today, correct });
+  localStorage.setItem(RESULTS_KEY, JSON.stringify(results));
+}
+
 export default function MCQGenerator({ topic }: Props) {
   const [textInput, setTextInput] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [mcqs, setMcqs] = useState<MCQ[]>([]);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
-  const [submitted, setSubmitted] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const [mcqs, setMcqs] = useState<MCQ[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [score, setScore] = useState(0);
+  const [quizFinished, setQuizFinished] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] || null;
@@ -51,6 +75,15 @@ export default function MCQGenerator({ topic }: Props) {
       reader.readAsDataURL(file);
     });
 
+  const resetQuiz = () => {
+    setMcqs([]);
+    setCurrentIndex(0);
+    setSelectedAnswer(null);
+    setIsRevealed(false);
+    setScore(0);
+    setQuizFinished(false);
+  };
+
   const generateMCQs = async () => {
     if (!textInput.trim() && !file) {
       setErrorMsg("দয়া করে টেক্সট দিন অথবা একটি ফাইল সিলেক্ট করুন।");
@@ -59,12 +92,10 @@ export default function MCQGenerator({ topic }: Props) {
 
     setLoading(true);
     setErrorMsg("");
-    setMcqs([]);
-    setSelectedAnswers({});
-    setSubmitted(false);
+    resetQuiz();
 
     try {
-      const apiKey = process.env.NEXT_PUBLIC_GEMINI_KEY;
+      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
       if (!apiKey) throw new Error("Gemini API key missing");
 
       const parts: any[] = [];
@@ -98,13 +129,10 @@ export default function MCQGenerator({ topic }: Props) {
 
       parts.push({ text: promptText });
 
-      // ✅ কনফিগ থেকে মডেল URL ব্যবহার
       const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts }],
-        }),
+        body: JSON.stringify({ contents: [{ parts }] }),
       });
 
       if (!response.ok) {
@@ -140,161 +168,229 @@ export default function MCQGenerator({ topic }: Props) {
     }
   };
 
-  const handleAnswerChange = (qIndex: number, optionKey: string) => {
-    setSelectedAnswers((prev) => ({ ...prev, [qIndex]: optionKey }));
+  const currentMCQ = mcqs[currentIndex] || null;
+
+  const handleOptionSelect = (key: string) => {
+    if (isRevealed) return;
+    setSelectedAnswer(key);
   };
 
-  const handleSubmit = () => {
-    setSubmitted(true);
+  const handleCheckAnswer = () => {
+    if (!selectedAnswer || !currentMCQ) return;
+    const isCorrect = selectedAnswer === currentMCQ.correctAnswer;
+    setIsRevealed(true);
+    if (isCorrect) {
+      setScore((prev) => prev + 1);
+    }
+    saveResult(topic, isCorrect);
   };
 
-  const reset = () => {
-    setMcqs([]);
-    setSelectedAnswers({});
-    setSubmitted(false);
-    setErrorMsg("");
+  const handleNext = () => {
+    if (currentIndex + 1 < mcqs.length) {
+      setCurrentIndex((prev) => prev + 1);
+      setSelectedAnswer(null);
+      setIsRevealed(false);
+    } else {
+      setQuizFinished(true);
+    }
+  };
+
+  const handleRetry = () => {
+    resetQuiz();
+    setTextInput("");
+    setFile(null);
   };
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-2xl border border-amber-200 p-5 shadow-sm">
-        <h2 className="text-lg font-bold text-amber-800 mb-3">
-          {topic} – MCQ তৈরি করুন
-        </h2>
+      {mcqs.length === 0 && !loading && (
+        <div className="bg-white rounded-2xl border border-amber-200 p-5 shadow-sm">
+          <h2 className="text-lg font-bold text-amber-800 mb-3">
+            {topic} – MCQ তৈরি করুন
+          </h2>
 
-        <textarea
-          className="w-full h-32 rounded-xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent resize-none"
-          placeholder="এখানে আপনার নোট / টেক্সট পেস্ট করুন..."
-          value={textInput}
-          onChange={(e) => {
-            setTextInput(e.target.value);
-            if (e.target.value) clearFile();
-          }}
-          disabled={loading}
-        />
+          <textarea
+            className="w-full h-32 rounded-xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent resize-none"
+            placeholder="এখানে আপনার নোট / টেক্সট পেস্ট করুন..."
+            value={textInput}
+            onChange={(e) => {
+              setTextInput(e.target.value);
+              if (e.target.value) clearFile();
+            }}
+            disabled={loading}
+          />
 
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <label className="cursor-pointer bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 text-sm text-amber-800 hover:bg-amber-100 transition">
-            📎 ফাইল সিলেক্ট করুন
-            <input
-              ref={fileRef}
-              type="file"
-              accept="application/pdf,image/*"
-              className="hidden"
-              onChange={handleFileChange}
-              disabled={loading}
-            />
-          </label>
-          {file && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <span className="truncate max-w-[200px]">{file.name}</span>
-              <button
-                onClick={clearFile}
-                className="text-red-500 hover:underline"
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <label className="cursor-pointer bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 text-sm text-amber-800 hover:bg-amber-100 transition">
+              📎 ফাইল সিলেক্ট করুন
+              <input
+                ref={fileRef}
+                type="file"
+                accept="application/pdf,image/*"
+                className="hidden"
+                onChange={handleFileChange}
                 disabled={loading}
-              >
-                ✕
-              </button>
-            </div>
+              />
+            </label>
+            {file && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <span className="truncate max-w-[200px]">{file.name}</span>
+                <button onClick={clearFile} className="text-red-500 hover:underline" disabled={loading}>
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={generateMCQs}
+            disabled={loading || (!textInput.trim() && !file)}
+            className="mt-4 w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl disabled:opacity-50 transition"
+          >
+            {loading ? "তৈরি হচ্ছে..." : "MCQ তৈরি করুন"}
+          </button>
+
+          {errorMsg && (
+            <p className="mt-3 text-sm text-red-600 bg-red-50 rounded-lg p-3">{errorMsg}</p>
           )}
         </div>
+      )}
 
-        <button
-          onClick={generateMCQs}
-          disabled={loading || (!textInput.trim() && !file)}
-          className="mt-4 w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl disabled:opacity-50 transition"
-        >
-          {loading ? "তৈরি হচ্ছে..." : "MCQ তৈরি করুন"}
-        </button>
+      {loading && (
+        <div className="text-center text-amber-700 mt-10">
+          <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-300 border-t-amber-600 rounded-full mb-2"></div>
+          <p>Gemini AI প্রশ্ন তৈরি করছে...</p>
+        </div>
+      )}
 
-        {errorMsg && (
-          <p className="mt-3 text-sm text-red-600 bg-red-50 rounded-lg p-3">{errorMsg}</p>
-        )}
-      </div>
+      {mcqs.length > 0 && !quizFinished && currentMCQ && (
+        <div className="bg-white rounded-2xl border border-amber-200 shadow-sm overflow-hidden">
+          <div className="h-2 bg-amber-100">
+            <div
+              className="h-full bg-amber-500 transition-all duration-500"
+              style={{ width: `${((currentIndex + (isRevealed ? 1 : 0)) / mcqs.length) * 100}%` }}
+            />
+          </div>
 
-      {mcqs.length > 0 && (
-        <div className="space-y-6">
-          {mcqs.map((mcq, qIdx) => {
-            const userChoice = selectedAnswers[qIdx];
-            const isCorrect = submitted && userChoice === mcq.correctAnswer;
-            const isWrong = submitted && userChoice && userChoice !== mcq.correctAnswer;
-            return (
-              <div key={qIdx} className="bg-white rounded-2xl border border-amber-200 p-5 shadow-sm">
-                <p className="font-semibold text-gray-800 mb-3">
-                  {qIdx + 1}. {mcq.question}
-                </p>
-                <div className="space-y-2">
-                  {Object.entries(mcq.options).map(([key, value]) => {
-                    const checked = userChoice === key;
-                    let optionClass = "border-gray-200";
-                    if (submitted) {
-                      if (key === mcq.correctAnswer) optionClass = "border-green-500 bg-green-50";
-                      else if (checked && key !== mcq.correctAnswer) optionClass = "border-red-500 bg-red-50";
-                      else optionClass = "opacity-60";
-                    }
-                    return (
-                      <label
-                        key={key}
-                        className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${optionClass} ${
-                          !submitted ? "hover:bg-amber-50" : ""
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name={`q-${qIdx}`}
-                          value={key}
-                          checked={checked || false}
-                          onChange={() => handleAnswerChange(qIdx, key)}
-                          disabled={submitted}
-                          className="accent-amber-500"
-                        />
-                        <span className="text-sm">
-                          {key}. {value}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-                {submitted && (
-                  <div
-                    className={`mt-4 p-3 rounded-lg text-sm ${
-                      isCorrect
-                        ? "bg-green-50 border border-green-300"
-                        : isWrong
-                        ? "bg-red-50 border border-red-300"
-                        : "bg-gray-50 border border-gray-200"
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
+                প্রশ্ন {currentIndex + 1} / {mcqs.length}
+              </span>
+              <span className="text-sm text-gray-600">সঠিক: {score}</span>
+            </div>
+
+            <p className="text-lg font-semibold text-gray-800 mb-5">{currentMCQ.question}</p>
+
+            <div className="space-y-2">
+              {Object.entries(currentMCQ.options).map(([key, value]) => {
+                const isCorrectOption = key === currentMCQ.correctAnswer;
+                const isSelected = key === selectedAnswer;
+
+                let optionClass = "border-gray-200 bg-white";
+                if (isRevealed) {
+                  if (isCorrectOption) optionClass = "border-green-500 bg-green-50";
+                  else if (isSelected && !isCorrectOption) optionClass = "border-red-500 bg-red-50";
+                  else optionClass = "opacity-60 border-gray-100";
+                } else if (isSelected) {
+                  optionClass = "border-amber-500 bg-amber-50";
+                }
+
+                return (
+                  <button
+                    key={key}
+                    disabled={isRevealed}
+                    onClick={() => handleOptionSelect(key)}
+                    className={`w-full text-left flex items-center gap-3 p-3 rounded-xl border transition ${optionClass} ${
+                      !isRevealed ? "hover:bg-amber-50 cursor-pointer" : "cursor-default"
                     }`}
                   >
-                    {isCorrect && <p className="font-bold text-green-700">✓ সঠিক!</p>}
-                    {isWrong && (
-                      <p className="font-bold text-red-600">
-                        ✗ ভুল (সঠিক উত্তর: {mcq.correctAnswer})
+                    <span
+                      className={`inline-flex items-center justify-center w-6 h-6 rounded-full border text-xs font-bold ${
+                        isSelected && !isRevealed
+                          ? "border-amber-500 bg-amber-500 text-white"
+                          : "border-gray-300 text-gray-600"
+                      } ${isRevealed && isCorrectOption ? "border-green-500 bg-green-500 text-white" : ""} ${
+                        isRevealed && isSelected && !isCorrectOption ? "border-red-500 bg-red-500 text-white" : ""
+                      }`}
+                    >
+                      {key}
+                    </span>
+                    <span className="text-sm">{value}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-5">
+              {!isRevealed ? (
+                <button
+                  onClick={handleCheckAnswer}
+                  disabled={!selectedAnswer}
+                  className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 rounded-xl disabled:opacity-50 transition"
+                >
+                  উত্তর দেখুন
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  <div
+                    className={`p-4 rounded-xl border ${
+                      selectedAnswer === currentMCQ.correctAnswer
+                        ? "bg-green-50 border-green-300"
+                        : "bg-red-50 border-red-300"
+                    }`}
+                  >
+                    <p className="font-bold text-lg mb-1">
+                      {selectedAnswer === currentMCQ.correctAnswer ? "✓ সঠিক!" : "✗ ভুল"}
+                    </p>
+                    {selectedAnswer !== currentMCQ.correctAnswer && (
+                      <p className="text-sm text-gray-700 mb-1">
+                        সঠিক উত্তর: <span className="font-semibold">{currentMCQ.correctAnswer}</span>
                       </p>
                     )}
-                    {!userChoice && <p className="text-gray-500">আপনি উত্তর দেননি।</p>}
-                    <p className="mt-1 text-gray-700">{mcq.explanation}</p>
+                    <p className="text-sm text-gray-700">{currentMCQ.explanation}</p>
                   </div>
-                )}
-              </div>
-            );
-          })}
 
-          <div className="flex gap-3">
-            {!submitted && (
-              <button
-                onClick={handleSubmit}
-                className="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-xl transition"
-              >
-                উত্তর জমা দিন
-              </button>
-            )}
-            <button
-              onClick={reset}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-xl transition"
-            >
-              আবার শুরু
-            </button>
+                  <button
+                    onClick={handleNext}
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 rounded-xl transition"
+                  >
+                    {currentIndex + 1 < mcqs.length ? "পরবর্তী প্রশ্ন →" : "ফলাফল দেখুন"}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
+        </div>
+      )}
+
+      {quizFinished && (
+        <div className="bg-white rounded-2xl border border-amber-200 p-8 text-center shadow-sm">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 mx-auto mb-4">
+            <span className="text-3xl">🎯</span>
+          </div>
+          <h2 className="text-2xl font-bold text-amber-800 mb-3">কুইজ শেষ!</h2>
+          <div className="grid grid-cols-2 gap-4 max-w-xs mx-auto mb-6">
+            <div className="bg-amber-50 rounded-xl p-3">
+              <p className="text-3xl font-bold text-amber-700">{score}</p>
+              <p className="text-xs text-gray-500">সঠিক</p>
+            </div>
+            <div className="bg-amber-50 rounded-xl p-3">
+              <p className="text-3xl font-bold text-amber-700">
+                {Math.round((score / mcqs.length) * 100)}%
+              </p>
+              <p className="text-xs text-gray-500">নির্ভুলতা</p>
+            </div>
+          </div>
+          <p className="text-gray-600 mb-6">
+            মোট প্রশ্ন: {mcqs.length} | সঠিক: {score} | ভুল: {mcqs.length - score}
+          </p>
+          <button
+            onClick={handleRetry}
+            className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-8 py-3 rounded-xl transition"
+          >
+            আবার চেষ্টা করুন
+          </button>
         </div>
       )}
     </div>
