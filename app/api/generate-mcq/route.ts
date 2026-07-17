@@ -7,7 +7,7 @@ const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { topic, textInput, fileBase64, fileMimeType, count = 5 } = body;
+    const { topic, textInput, fileBase64, fileMimeType, count = 10 } = body;
 
     if (!topic) {
       return NextResponse.json({ error: "topic প্রয়োজন" }, { status: 400 });
@@ -17,7 +17,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "টেক্সট বা ফাইল প্রয়োজন" }, { status: 400 });
     }
 
-    // ✅ শুধু GEMINI_API_KEY (কোনো NEXT_PUBLIC_ prefix নেই)
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: "GEMINI_API_KEY missing" }, { status: 500 });
@@ -38,8 +37,17 @@ export async function POST(req: Request) {
       });
     }
 
-    const promptText = `তুমি একজন বিশেষজ্ঞ শিক্ষক। নিচের কনটেন্ট এবং "${topic}" টপিকের জ্ঞান থেকে ${count}টি BCS-মানের MCQ বাংলায় তৈরি করো।
+    const promptText = `তুমি একজন বিশেষজ্ঞ শিক্ষক ও BCS পরীক্ষার প্রশ্ন-নির্মাতা। নিচের সোর্স কনটেন্ট থেকে "${topic}" টপিকের উপর ${count}টি ইউনিক, সমালোচনামূলক (critical thinking), এবং BCS-মানের MCQ বাংলায় তৈরি করো।
+
+প্রথমে সোর্স কনটেন্টটি বিশ্লেষণ করে এর প্রধান উপ-বিষয়/অংশগুলো চিহ্নিত করো (উদাহরণ: যদি একাধিক নিয়ম, সংজ্ঞা, উদাহরণ, বা অনুচ্ছেদ থাকে, প্রতিটাকে আলাদা অংশ হিসেবে গণ্য করো)।
+তারপর মোট ${count}টি MCQ এমনভাবে তৈরি করো যাতে প্রতিটা প্রধান অংশ থেকে অন্তত একটি প্রশ্ন থাকে এবং কোনো একটি অংশ থেকে পুনরাবৃত্তিমূলকভাবে অনেকগুলো প্রশ্ন না আসে। লক্ষ্য: পুরো কনটেন্টের সুষম কভারেজ (balanced coverage), শুধু শুরুর অংশ থেকে না।
+
+সোর্স কনটেন্ট থেকে খুবই সমালোচনামূলক (critical), BCS পরীক্ষার মানের ট্র্যাপি প্রশ্ন বানাও — শুধু সরাসরি তথ্য জিজ্ঞাসা না করে, ধারণাগত গভীরতা, ব্যতিক্রম, তুলনা, বা সূক্ষ্ম পার্থক্য পরীক্ষা করে এমন প্রশ্ন বানাও।
+
 প্রতিটি প্রশ্নে ঠিক ৪টি অপশন থাকবে, অপশন লেবেল সবসময় "A", "B", "C", "D" হবে।
+প্রতিটি প্রশ্নের জন্য 'difficulty' ফিল্ডে 'easy' অথবা 'hard' ট্যাগ দাও (hard মানে জটিল/গভীর ধারণা লাগে, easy মানে সরাসরি তথ্য মনে রাখলেই হয়)।
+প্রতিটি প্রশ্নের জন্য 'subtopic' ফিল্ডে সংক্ষিপ্ত উপ-বিষয়ের নাম দাও যা এই প্রশ্নটি কভার করছে।
+
 উত্তর শুধুমাত্র JSON ফরম্যাটে দাও, কোনো অতিরিক্ত টেক্সট বা মার্কডাউন ব্যাকটিক্স ছাড়া।
 ফরম্যাট:
 [
@@ -47,7 +55,9 @@ export async function POST(req: Request) {
     "question": "প্রশ্ন",
     "options": { "A": "...", "B": "...", "C": "...", "D": "..." },
     "correctAnswer": "B",
-    "explanation": "সংক্ষিপ্ত বাংলা ব্যাখ্যা"
+    "explanation": "সংক্ষিপ্ত বাংলা ব্যাখ্যা",
+    "difficulty": "easy",
+    "subtopic": "উপ-বিষয়ের নাম"
   }
 ]`;
 
