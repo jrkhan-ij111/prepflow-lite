@@ -12,9 +12,6 @@ interface MCQ {
   explanation: string;
   difficulty?: "easy" | "hard";
   subtopic?: string;
-  status?: "new" | "learning" | "mastered";
-  correctStreak?: number;
-  wrongCount?: number;
 }
 
 interface SavedFile {
@@ -27,6 +24,24 @@ interface QuestionBank {
   sourceText: string;
   questions: MCQ[];
   createdAt: string;
+}
+
+interface PerQuestionStats {
+  attempts: number;
+  correct: number;
+}
+
+interface DailyStats {
+  attempted: number;
+  correct: number;
+}
+
+interface TopicStats {
+  totalAttempted: number;
+  totalCorrect: number;
+  perQuestion: Record<string, PerQuestionStats>;
+  daily: Record<string, DailyStats>;
+  history: { date: string; correct: boolean }[];
 }
 
 interface Props {
@@ -46,23 +61,22 @@ function safeRemoveItem(key: string) {
   try { localStorage.removeItem(key); } catch {}
 }
 
+function saveResult(topic: string, correct: boolean) {
+  const results = loadResults();
+  results.push({ topic, date: new Date().toISOString().slice(0, 10), correct });
+  safeSetItem(RESULTS_KEY, JSON.stringify(results));
+}
 function loadResults(): { topic: string; date: string; correct: boolean }[] {
   try {
     const raw = localStorage.getItem(RESULTS_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch { return []; }
 }
-function saveResult(topic: string, correct: boolean) {
-  const results = loadResults();
-  results.push({ topic, date: new Date().toISOString().slice(0, 10), correct });
-  safeSetItem(RESULTS_KEY, JSON.stringify(results));
-}
 
 function simpleHash(str: string): string {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
     hash |= 0;
   }
   return Math.abs(hash).toString(36);
@@ -71,13 +85,72 @@ function simpleHash(str: string): string {
 function getBankKey(topic: string, sourceHash: string): string {
   return `prepflow_bank_${topic}_${sourceHash}`;
 }
-
+function getStatsKey(topic: string, sourceHash: string): string {
+  return `prepflow_stats_${topic}_${sourceHash}`;
+}
 function getTopicFileKey(topic: string): string {
   return `prepflow_file_${topic}`;
 }
-
 function getTopicSourceKey(topic: string): string {
   return `prepflow_source_${topic}`;
+}
+
+// ---------- Stats helpers ----------
+function initStats(): TopicStats {
+  return { totalAttempted: 0, totalCorrect: 0, perQuestion: {}, daily: {}, history: [] };
+}
+
+function loadStats(key: string): TopicStats {
+  const raw = safeGetItem(key);
+  if (!raw) return initStats();
+  try { return JSON.parse(raw); } catch { return initStats(); }
+}
+
+function saveStats(key: string, stats: TopicStats) {
+  safeSetItem(key, JSON.stringify(stats));
+}
+
+function recordAttempt(stats: TopicStats, questionId: string, correct: boolean) {
+  const today = new Date().toISOString().slice(0, 10);
+  stats.totalAttempted++;
+  if (correct) stats.totalCorrect++;
+  if (!stats.perQuestion[questionId]) stats.perQuestion[questionId] = { attempts: 0, correct: 0 };
+  stats.perQuestion[questionId].attempts++;
+  if (correct) stats.perQuestion[questionId].correct++;
+  if (!stats.daily[today]) stats.daily[today] = { attempted: 0, correct: 0 };
+  stats.daily[today].attempted++;
+  if (correct) stats.daily[today].correct++;
+  stats.history.push({ date: today, correct });
+  if (stats.history.length > 200) stats.history.shift();
+}
+
+function getQuestionAccuracy(stats: TopicStats, qId: string): number {
+  const q = stats.perQuestion[qId];
+  if (!q || q.attempts === 0) return 0;
+  return (q.correct / q.attempts) * 100;
+}
+
+function isMastered(stats: TopicStats, qId: string): boolean {
+  const accuracy = getQuestionAccuracy(stats, qId);
+  const attempts = stats.perQuestion[qId]?.attempts || 0;
+  return accuracy >= 80 && attempts >= 3;
+}
+
+function computeMastery(stats: TopicStats): { level: string; score: number } {
+  if (stats.totalAttempted === 0) return { level: "শুরু", score: 0 };
+  const overallAccuracy = (stats.totalCorrect / stats.totalAttempted) * 100;
+  const recentHistory = stats.history.slice(-20);
+  const recentCorrect = recentHistory.filter(h => h.correct).length;
+  const recentAccuracy = recentHistory.length > 0 ? (recentCorrect / recentHistory.length) * 100 : overallAccuracy;
+  const totalQuestions = Object.keys(stats.perQuestion).length;
+  const masteredQuestions = Object.keys(stats.perQuestion).filter(id => isMastered(stats, id)).length;
+  const masteryRatio = totalQuestions > 0 ? (masteredQuestions / totalQuestions) * 100 : 0;
+  const score = Math.round((overallAccuracy * 0.4) + (recentAccuracy * 0.35) + (masteryRatio * 0.25));
+  if (score >= 90) return { level: "মাস্টার লেভেল 🏆", score };
+  if (score >= 75) return { level: "দক্ষ", score };
+  if (score >= 55) return { level: "উন্নতিশীল", score };
+  if (score >= 35) return { level: "অনুশীলন প্রয়োজন", score };
+  return { level: "শুরু", score };
 }
 
 // ---------- MCQGenerator Component ----------
@@ -90,24 +163,25 @@ export default function MCQGenerator({ topic }: Props) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentQuestion, setCurrentQuestion] = useState<MCQ | null>(null);
+  const [currentQId, setCurrentQId] = useState<string>("");
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [score, setScore] = useState(0);
-  const [quizFinished, setQuizFinished] = useState(false);
+  const [sessionCount, setSessionCount] = useState(0);
 
   const [savedFileName, setSavedFileName] = useState<string | null>(null);
   const [fileSizeWarning, setFileSizeWarning] = useState(false);
 
   const [sourceHash, setSourceHash] = useState<string>("");
   const [bankKey, setBankKey] = useState<string>("");
+  const [statsKey, setStatsKey] = useState<string>("");
+  const [stats, setStats] = useState<TopicStats>(initStats());
   const [allMastered, setAllMastered] = useState(false);
 
-  const [mode, setMode] = useState<"practice" | "revision">("practice");
-  const [revisionSources, setRevisionSources] = useState<{ topic: string; hash: string; label: string }[]>([]);
-  const [selectedRevisionSource, setSelectedRevisionSource] = useState<string>("");
+  // exclude list for current round
+  const [excludeIds, setExcludeIds] = useState<string[]>([]);
 
-  // persist session file & source
   const persistFile = useCallback((fileBase64: string, fileMimeType: string, fileName: string) => {
     const fileKey = getTopicFileKey(topic);
     const saved: SavedFile = { base64: fileBase64, mimeType: fileMimeType, fileName };
@@ -121,7 +195,6 @@ export default function MCQGenerator({ topic }: Props) {
     safeSetItem(sourceKey, text);
   }, [topic]);
 
-  // save/load question bank
   const loadBank = useCallback((): QuestionBank | null => {
     if (!bankKey) return null;
     const raw = safeGetItem(bankKey);
@@ -133,33 +206,6 @@ export default function MCQGenerator({ topic }: Props) {
     safeSetItem(bankKey, JSON.stringify(bank));
   }, [bankKey]);
 
-  const computeSourceHash = useCallback((text: string, fileName?: string) => {
-    return simpleHash(text + (fileName || ""));
-  }, []);
-
-  // load revision sources
-  useEffect(() => {
-    const sources: { topic: string; hash: string; label: string }[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith("prepflow_bank_")) {
-        const parts = key.split("_");
-        const bankTopic = parts[2];
-        const bankHash = parts.slice(3).join("_");
-        const raw = safeGetItem(key);
-        if (raw) {
-          try {
-            const bank: QuestionBank = JSON.parse(raw);
-            const label = bank.sourceText?.slice(0, 60) || `Source ${bankHash}`;
-            sources.push({ topic: bankTopic, hash: bankHash, label });
-          } catch {}
-        }
-      }
-    }
-    setRevisionSources(sources);
-  }, [mcqs]);
-
-  // restore saved file info
   useEffect(() => {
     const fileKey = getTopicFileKey(topic);
     const savedFileRaw = safeGetItem(fileKey);
@@ -197,65 +243,40 @@ export default function MCQGenerator({ topic }: Props) {
       reader.readAsDataURL(file);
     });
 
-  const resetQuiz = () => {
-    setMcqs([]);
-    setCurrentIndex(0);
-    setSelectedAnswer(null);
-    setIsRevealed(false);
-    setScore(0);
-    setQuizFinished(false);
-    setAllMastered(false);
-  };
+  // ---- Weighted random pick ----
+  const pickNextQuestion = useCallback((bank: QuestionBank, currentStats: TopicStats, exclude: string[]): { question: MCQ; id: string } | null => {
+    const active = bank.questions.filter(q => {
+      const qId = q.id!;
+      if (exclude.includes(qId)) return false;
+      return !isMastered(currentStats, qId);
+    });
+    if (active.length === 0) return null;
 
-  const prepareQuestionBank = (questions: MCQ[]): MCQ[] => {
-    return questions.map((q, i) => ({
-      ...q,
-      id: q.id || `q-${i}-${Date.now()}`,
-      status: q.status || "new",
-      correctStreak: q.correctStreak ?? 0,
-      wrongCount: q.wrongCount ?? 0,
-    }));
-  };
+    const weights = active.map(q => {
+      const acc = getQuestionAccuracy(currentStats, q.id!);
+      const attempts = currentStats.perQuestion[q.id!]?.attempts || 0;
+      if (attempts === 0) return 3;
+      if (acc < 50) return 4;
+      if (acc < 80) return 2;
+      return 1;
+    });
 
-  const pickNextQuestionIndex = (bank: QuestionBank): number => {
-    const learningQuestions = bank.questions
-      .map((q, i) => ({ ...q, idx: i }))
-      .filter(q => q.status !== "mastered" && q.status === "learning");
-    if (learningQuestions.length > 0) {
-      const randomLearning = learningQuestions[Math.floor(Math.random() * learningQuestions.length)];
-      return randomLearning.idx;
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
+    let random = Math.random() * totalWeight;
+    for (let i = 0; i < active.length; i++) {
+      random -= weights[i];
+      if (random <= 0) return { question: active[i], id: active[i].id! };
     }
-    const newQuestions = bank.questions
-      .map((q, i) => ({ ...q, idx: i }))
-      .filter(q => q.status === "new");
-    if (newQuestions.length > 0) {
-      return newQuestions[0].idx;
-    }
-    return -1;
-  };
-
-  const updateQuestionBank = (updatedQuestion: MCQ) => {
-    const bank = loadBank();
-    if (!bank) return;
-    const idx = bank.questions.findIndex(q => q.id === updatedQuestion.id);
-    if (idx !== -1) {
-      bank.questions[idx] = updatedQuestion;
-      saveBank(bank);
-      
-      // check if all mastered
-      const allDone = bank.questions.every(q => q.status === "mastered");
-      if (allDone) {
-        setAllMastered(true);
-        setQuizFinished(true);
-      }
-    }
-  };
+    return { question: active[active.length - 1], id: active[active.length - 1].id! };
+  }, []);
 
   const generateMCQs = async (existingBank?: QuestionBank) => {
     setLoading(true);
     setErrorMsg("");
-    resetQuiz();
+    setScore(0);
+    setSessionCount(0);
     setAllMastered(false);
+    setExcludeIds([]);
 
     try {
       let fileBase64 = "";
@@ -280,15 +301,18 @@ export default function MCQGenerator({ topic }: Props) {
         }
       }
 
-      // If we already have a bank, reuse questions
       if (existingBank) {
         const hash = computeSourceHash(effectiveSource, fileName);
         setSourceHash(hash);
         setBankKey(getBankKey(topic, hash));
-        setMcqs(existingBank.questions);
-        const nextIdx = pickNextQuestionIndex(existingBank);
-        if (nextIdx !== -1) {
-          setCurrentIndex(nextIdx);
+        setStatsKey(getStatsKey(topic, hash));
+        const loadedStats = loadStats(getStatsKey(topic, hash));
+        setStats(loadedStats);
+        const picked = pickNextQuestion(existingBank, loadedStats, []);
+        if (picked) {
+          setMcqs(existingBank.questions);
+          setCurrentQuestion(picked.question);
+          setCurrentQId(picked.id);
           setSelectedAnswer(null);
           setIsRevealed(false);
         }
@@ -314,25 +338,39 @@ export default function MCQGenerator({ topic }: Props) {
         throw new Error("কোনো MCQ তৈরি হয়নি। কনটেন্ট আরও সমৃদ্ধ করুন।");
       }
 
-      const questions = prepareQuestionBank(data.mcqs);
+      const questions = data.mcqs.map((q: MCQ, i: number) => ({
+        ...q,
+        id: q.id || `q-${i}-${Date.now()}`,
+      }));
+
       const hash = computeSourceHash(effectiveSource, fileName);
       const key = getBankKey(topic, hash);
+      const statsK = getStatsKey(topic, hash);
       const bank: QuestionBank = {
         sourceText: effectiveSource,
         questions,
         createdAt: new Date().toISOString(),
       };
-      
+
       setSourceHash(hash);
       setBankKey(key);
+      setStatsKey(statsK);
       saveBank(bank);
       persistSource(effectiveSource);
       if (fileBase64) persistFile(fileBase64, fileMimeType, fileName);
 
-      setMcqs(questions);
-      setCurrentIndex(0);
-      setSelectedAnswer(null);
-      setIsRevealed(false);
+      const initialStats = initStats();
+      saveStats(statsK, initialStats);
+      setStats(initialStats);
+
+      const picked = pickNextQuestion(bank, initialStats, []);
+      if (picked) {
+        setMcqs(questions);
+        setCurrentQuestion(picked.question);
+        setCurrentQId(picked.id);
+        setSelectedAnswer(null);
+        setIsRevealed(false);
+      }
     } catch (err: any) {
       setErrorMsg(err.message || "MCQ তৈরিতে অজানা ত্রুটি।");
     } finally {
@@ -340,26 +378,9 @@ export default function MCQGenerator({ topic }: Props) {
     }
   };
 
-  const loadRevisionSource = (hash: string) => {
-    const key = getBankKey(topic, hash);
-    const raw = safeGetItem(key);
-    if (!raw) return;
-    try {
-      const bank: QuestionBank = JSON.parse(raw);
-      setMcqs(bank.questions);
-      setBankKey(key);
-      setSourceHash(hash);
-      setMode("revision");
-      setCurrentIndex(0);
-      setSelectedAnswer(null);
-      setIsRevealed(false);
-      setScore(0);
-      setQuizFinished(false);
-      setAllMastered(false);
-    } catch {}
-  };
-
-  const currentMCQ = mcqs[currentIndex] || null;
+  const computeSourceHash = useCallback((text: string, fileName?: string) => {
+    return simpleHash(text + (fileName || ""));
+  }, []);
 
   const handleOptionSelect = (key: string) => {
     if (isRevealed) return;
@@ -367,53 +388,37 @@ export default function MCQGenerator({ topic }: Props) {
   };
 
   const handleCheckAnswer = () => {
-    if (!selectedAnswer || !currentMCQ) return;
-    const isCorrect = selectedAnswer === currentMCQ.correctAnswer;
+    if (!selectedAnswer || !currentQuestion) return;
+    const correct = selectedAnswer === currentQuestion.correctAnswer;
     setIsRevealed(true);
-    
-    const updatedQuestion = { ...currentMCQ };
-    
-    if (mode === "practice") {
-      if (isCorrect) {
-        setScore((prev) => prev + 1);
-        updatedQuestion.correctStreak = (updatedQuestion.correctStreak || 0) + 1;
-        if ((updatedQuestion.correctStreak || 0) >= 2) {
-          updatedQuestion.status = "mastered";
-        } else {
-          updatedQuestion.status = "learning";
-        }
-      } else {
-        updatedQuestion.correctStreak = 0;
-        updatedQuestion.wrongCount = (updatedQuestion.wrongCount || 0) + 1;
-        updatedQuestion.status = "learning";
-      }
-      
-      const newMcqs = [...mcqs];
-      newMcqs[currentIndex] = updatedQuestion;
-      setMcqs(newMcqs);
-      saveResult(topic, isCorrect);
-      updateQuestionBank(updatedQuestion);
-    }
+    setSessionCount(prev => prev + 1);
+    if (correct) setScore(prev => prev + 1);
+
+    // Update stats
+    const updatedStats = { ...stats };
+    recordAttempt(updatedStats, currentQId, correct);
+    saveStats(statsKey, updatedStats);
+    setStats(updatedStats);
+    saveResult(topic, correct);
   };
 
   const handleNext = () => {
-    if (allMastered) {
-      setQuizFinished(true);
+    const bank = loadBank();
+    if (!bank) return;
+
+    // Add current question to exclude list so it doesn't repeat immediately
+    const newExclude = [...excludeIds, currentQId];
+    setExcludeIds(newExclude);
+
+    const picked = pickNextQuestion(bank, stats, newExclude);
+    if (!picked) {
+      setAllMastered(true);
       return;
     }
-    
-    const bank = loadBank();
-    if (bank) {
-      const nextIdx = pickNextQuestionIndex(bank);
-      if (nextIdx !== -1) {
-        setCurrentIndex(nextIdx);
-        setSelectedAnswer(null);
-        setIsRevealed(false);
-      } else {
-        setAllMastered(true);
-        setQuizFinished(true);
-      }
-    }
+    setCurrentQuestion(picked.question);
+    setCurrentQId(picked.id);
+    setSelectedAnswer(null);
+    setIsRevealed(false);
   };
 
   const handleRetry = (clearAll: boolean) => {
@@ -421,65 +426,44 @@ export default function MCQGenerator({ topic }: Props) {
       safeRemoveItem(getTopicSourceKey(topic));
       safeRemoveItem(getTopicFileKey(topic));
       safeRemoveItem(bankKey);
+      safeRemoveItem(statsKey);
       setTextInput("");
       setFile(null);
       setSavedFileName(null);
-      resetQuiz();
-      setMode("practice");
+      setMcqs([]);
+      setCurrentQuestion(null);
+      setScore(0);
+      setSessionCount(0);
+      setAllMastered(false);
     } else {
       const bank = loadBank();
       if (bank) {
-        generateMCQs(bank);
+        safeRemoveItem(statsKey);
+        const freshStats = initStats();
+        saveStats(statsKey, freshStats);
+        setStats(freshStats);
+        setScore(0);
+        setSessionCount(0);
+        setExcludeIds([]);
+        setAllMastered(false);
+        const picked = pickNextQuestion(bank, freshStats, []);
+        if (picked) {
+          setMcqs(bank.questions);
+          setCurrentQuestion(picked.question);
+          setCurrentQId(picked.id);
+          setSelectedAnswer(null);
+          setIsRevealed(false);
+        }
       }
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Mode selector */}
-      <div className="flex gap-2">
-        <button
-          onClick={() => { setMode("practice"); resetQuiz(); }}
-          className={`px-4 py-2 rounded-xl text-sm font-semibold ${mode === "practice" ? "bg-amber-500 text-white" : "bg-white text-amber-800 border border-amber-200"}`}
-        >
-          অনুশীলন
-        </button>
-        <button
-          onClick={() => setMode("revision")}
-          className={`px-4 py-2 rounded-xl text-sm font-semibold ${mode === "revision" ? "bg-amber-500 text-white" : "bg-white text-amber-800 border border-amber-200"}`}
-        >
-          রিভিশন
-        </button>
-      </div>
-
-      {/* Revision source selector */}
-      {mode === "revision" && mcqs.length === 0 && (
-        <div className="bg-white rounded-2xl border border-amber-200 p-5 shadow-sm">
-          <h2 className="text-lg font-bold text-amber-800 mb-3">রিভিশন সোর্স সিলেক্ট করুন</h2>
-          {revisionSources.length === 0 ? (
-            <p className="text-gray-500">এখনো কোনো সোর্স জমা নেই।</p>
-          ) : (
-            <div className="space-y-2">
-              {revisionSources.map(src => (
-                <button
-                  key={src.hash}
-                  onClick={() => loadRevisionSource(src.hash)}
-                  className="w-full text-left p-3 rounded-xl border border-amber-200 hover:bg-amber-50"
-                >
-                  <p className="text-sm font-medium">{src.label}</p>
-                  <p className="text-xs text-gray-500">{src.topic}</p>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Input form */}
-      {mcqs.length === 0 && !loading && mode === "practice" && (
+      {!currentQuestion && !loading && !allMastered && (
         <div className="bg-white rounded-2xl border border-amber-200 p-5 shadow-sm">
           <h2 className="text-lg font-bold text-amber-800 mb-3">{topic} – MCQ তৈরি করুন</h2>
-
           <textarea
             className="w-full h-32 rounded-xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent resize-none"
             placeholder="এখানে আপনার নোট / টেক্সট পেস্ট করুন..."
@@ -490,7 +474,6 @@ export default function MCQGenerator({ topic }: Props) {
             }}
             disabled={loading}
           />
-
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <label className="cursor-pointer bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 text-sm text-amber-800 hover:bg-amber-100 transition">
               📎 ফাইল সিলেক্ট করুন
@@ -508,11 +491,9 @@ export default function MCQGenerator({ topic }: Props) {
               </div>
             )}
           </div>
-
           {fileSizeWarning && (
             <p className="mt-2 text-xs text-amber-700">ফাইলটি অনেক বড়, তাই সংরক্ষণ করা যায়নি।</p>
           )}
-
           <button
             onClick={() => generateMCQs()}
             disabled={loading || (!textInput.trim() && !file && !savedFileName)}
@@ -524,7 +505,6 @@ export default function MCQGenerator({ topic }: Props) {
         </div>
       )}
 
-      {/* Loading */}
       {loading && (
         <div className="text-center text-amber-700 mt-10">
           <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-300 border-t-amber-600 rounded-full mb-2" />
@@ -533,12 +513,11 @@ export default function MCQGenerator({ topic }: Props) {
       )}
 
       {/* All mastered message */}
-      {allMastered && !quizFinished && (
+      {allMastered && (
         <div className="bg-white rounded-2xl border border-green-300 p-8 text-center shadow-sm">
           <div className="text-4xl mb-3">🎉</div>
-          <h2 className="text-xl font-bold text-green-700 mb-2">এই সোর্সের সব প্রশ্ন মাস্টার হয়ে গেছে!</h2>
-          <p className="text-gray-600 mb-4">তুমি সবগুলো প্রশ্ন সঠিকভাবে সম্পন্ন করেছ।</p>
-          <div className="flex gap-3 justify-center">
+          <h2 className="text-xl font-bold text-green-700 mb-2">এই সোর্সের সব প্রশ্ন আয়ত্ত হয়ে গেছে!</h2>
+          <div className="flex gap-3 justify-center mt-4">
             <button onClick={() => handleRetry(false)} className="bg-amber-500 text-white px-6 py-2 rounded-xl font-semibold">একই সোর্স দিয়ে আবার প্র্যাকটিস</button>
             <button onClick={() => handleRetry(true)} className="bg-gray-200 text-gray-700 px-6 py-2 rounded-xl font-semibold">নতুন সোর্স</button>
           </div>
@@ -546,29 +525,25 @@ export default function MCQGenerator({ topic }: Props) {
       )}
 
       {/* Quiz */}
-      {mcqs.length > 0 && !quizFinished && !allMastered && currentMCQ && (
+      {currentQuestion && !allMastered && (
         <div className="bg-white rounded-2xl border border-amber-200 shadow-sm overflow-hidden">
-          <div className="h-2 bg-amber-100">
-            <div className="h-full bg-amber-500 transition-all duration-500" style={{ width: `${30}%` }} />
-          </div>
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
-                {mode === "revision" ? "রিভিশন" : `প্রশ্ন ${currentIndex + 1}`}
+                সঠিক: {score} / {sessionCount}
               </span>
-              {mode === "practice" && <span className="text-sm text-gray-600">সঠিক: {score}</span>}
-              {currentMCQ.difficulty && (
-                <span className={`text-xs px-2 py-0.5 rounded-full ${currentMCQ.difficulty === "hard" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
-                  {currentMCQ.difficulty === "hard" ? "কঠিন" : "সহজ"}
+              {currentQuestion.difficulty && (
+                <span className={`text-xs px-2 py-0.5 rounded-full ${currentQuestion.difficulty === "hard" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+                  {currentQuestion.difficulty === "hard" ? "কঠিন" : "সহজ"}
                 </span>
               )}
             </div>
 
-            <p className="text-lg font-semibold text-gray-800 mb-5">{currentMCQ.question}</p>
+            <p className="text-lg font-semibold text-gray-800 mb-5">{currentQuestion.question}</p>
 
             <div className="space-y-2">
-              {Object.entries(currentMCQ.options).map(([key, value]) => {
-                const isCorrectOption = key === currentMCQ.correctAnswer;
+              {Object.entries(currentQuestion.options).map(([key, value]) => {
+                const isCorrectOption = key === currentQuestion.correctAnswer;
                 const isSelected = key === selectedAnswer;
                 let optionClass = "border-gray-200 bg-white";
                 if (isRevealed) {
@@ -601,13 +576,13 @@ export default function MCQGenerator({ topic }: Props) {
                 </button>
               ) : (
                 <div className="space-y-3">
-                  <div className={`p-4 rounded-xl border ${selectedAnswer === currentMCQ.correctAnswer ? "bg-green-50 border-green-300" : "bg-red-50 border-red-300"}`}>
-                    <p className="font-bold text-lg mb-1">{selectedAnswer === currentMCQ.correctAnswer ? "✓ সঠিক!" : "✗ ভুল"}</p>
-                    {selectedAnswer !== currentMCQ.correctAnswer && (
-                      <p className="text-sm text-gray-700 mb-1">সঠিক উত্তর: <span className="font-semibold">{currentMCQ.correctAnswer}</span></p>
+                  <div className={`p-4 rounded-xl border ${selectedAnswer === currentQuestion.correctAnswer ? "bg-green-50 border-green-300" : "bg-red-50 border-red-300"}`}>
+                    <p className="font-bold text-lg mb-1">{selectedAnswer === currentQuestion.correctAnswer ? "✓ সঠিক!" : "✗ ভুল"}</p>
+                    {selectedAnswer !== currentQuestion.correctAnswer && (
+                      <p className="text-sm text-gray-700 mb-1">সঠিক উত্তর: <span className="font-semibold">{currentQuestion.correctAnswer}</span></p>
                     )}
-                    {currentMCQ.subtopic && <p className="text-xs text-gray-500 mb-1">উপ-বিষয়: {currentMCQ.subtopic}</p>}
-                    <p className="text-sm text-gray-700">{currentMCQ.explanation}</p>
+                    {currentQuestion.subtopic && <p className="text-xs text-gray-500 mb-1">উপ-বিষয়: {currentQuestion.subtopic}</p>}
+                    <p className="text-sm text-gray-700">{currentQuestion.explanation}</p>
                   </div>
                   <button onClick={handleNext} className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 rounded-xl transition">
                     পরবর্তী প্রশ্ন →
@@ -618,39 +593,6 @@ export default function MCQGenerator({ topic }: Props) {
 
             <button onClick={() => handleRetry(true)} className="mt-4 text-xs text-gray-500 underline hover:text-red-500">
               নতুন করে শুরু করুন
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Summary */}
-      {quizFinished && (
-        <div className="bg-white rounded-2xl border border-amber-200 p-8 text-center shadow-sm">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 mx-auto mb-4">
-            <span className="text-3xl">🎯</span>
-          </div>
-          <h2 className="text-2xl font-bold text-amber-800 mb-3">কুইজ শেষ!</h2>
-          {mode === "practice" && (
-            <>
-              <div className="grid grid-cols-2 gap-4 max-w-xs mx-auto mb-6">
-                <div className="bg-amber-50 rounded-xl p-3">
-                  <p className="text-3xl font-bold text-amber-700">{score}</p>
-                  <p className="text-xs text-gray-500">সঠিক</p>
-                </div>
-                <div className="bg-amber-50 rounded-xl p-3">
-                  <p className="text-3xl font-bold text-amber-700">{Math.round((score / (mcqs.length || 1)) * 100)}%</p>
-                  <p className="text-xs text-gray-500">নির্ভুলতা</p>
-                </div>
-              </div>
-            </>
-          )}
-          <p className="text-gray-600 mb-6">মোট প্রশ্ন: {mcqs.length}</p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button onClick={() => handleRetry(false)} className="bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-xl transition">
-              একই সোর্স দিয়ে নতুন MCQ বানান
-            </button>
-            <button onClick={() => handleRetry(true)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-6 py-3 rounded-xl transition">
-              সম্পূর্ণ নতুন সোর্স দিন
             </button>
           </div>
         </div>
