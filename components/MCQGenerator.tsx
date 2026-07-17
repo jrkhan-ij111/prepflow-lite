@@ -94,9 +94,9 @@ export default function MCQGenerator({ topic }: Props) {
 
       parts.push({ text: promptText });
 
-      // ✅ gemini-pro (স্থিতিশীল, কাজ করে)
+      // ✅ gemini-2.5-flash endpoint
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
