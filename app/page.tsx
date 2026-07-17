@@ -4,14 +4,6 @@ import { useState, useEffect } from "react";
 import MCQGenerator from "@/components/MCQGenerator";
 
 // ---------- Types ----------
-interface TopicStats {
-  totalAttempted: number;
-  totalCorrect: number;
-  perQuestion: Record<string, { attempts: number; correct: number }>;
-  daily: Record<string, { attempted: number; correct: number }>;
-  history: { date: string; correct: boolean }[];
-}
-
 interface TopicOverview {
   topic: string;
   accuracy: number;
@@ -33,18 +25,17 @@ const SUBJECTS: Record<string, string[]> = {
   "আইসিটি": ["কম্পিউটার", "তথ্য প্রযুক্তি", "ইন্টারনেট", "প্রোগ্রামিং"],
 };
 
-// ---------- Safe localStorage helpers ----------
-function getStatsKey(t: string) { return `prepflow_stats_${t}`; }
-function getBankKey(t: string) { return `prepflow_bank_${t}`; }
-
+// ---------- Safe localStorage ----------
 function safeGet(key: string): any | null {
   if (typeof window === "undefined") return null;
   try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : null; } catch { return null; }
 }
 
 function getTopicOverview(topic: string): TopicOverview {
-  const stats = safeGet(getStatsKey(topic)) as TopicStats | null;
-  const bank = safeGet(getBankKey(topic));
+  const statsKey = `prepflow_stats_${topic}`;
+  const bankKey = `prepflow_bank_${topic}`;
+  const stats = safeGet(statsKey);
+  const bank = safeGet(bankKey);
   const today = new Date().toISOString().slice(0, 10);
 
   if (!stats) {
@@ -55,16 +46,16 @@ function getTopicOverview(topic: string): TopicOverview {
     };
   }
 
-  const total = Object.keys(stats.perQuestion).length;
-  const mastered = Object.values(stats.perQuestion).filter(
+  const total = Object.keys(stats.perQuestion || {}).length;
+  const mastered = Object.values(stats.perQuestion || {}).filter(
     (q: any) => q.attempts >= 3 && (q.correct / q.attempts) >= 0.8
   ).length;
-  const learning = Object.values(stats.perQuestion).filter(
+  const learning = Object.values(stats.perQuestion || {}).filter(
     (q: any) => q.attempts > 0 && (q.attempts < 3 || (q.correct / q.attempts) < 0.8)
   ).length;
   const acc = stats.totalAttempted > 0 ? Math.round((stats.totalCorrect / stats.totalAttempted) * 100) : 0;
-  const todayCount = stats.daily[today]?.attempted || 0;
-  const dates = Object.keys(stats.daily).sort().reverse();
+  const todayCount = stats.daily?.[today]?.attempted || 0;
+  const dates = Object.keys(stats.daily || {}).sort().reverse();
 
   return {
     topic, accuracy: acc, totalQuestions: total,
@@ -87,11 +78,11 @@ export default function Home() {
   const [topic, setTopic] = useState<string | null>(null);
   const [overviews, setOverviews] = useState<TopicOverview[]>([]);
 
-  useEffect(() => { setOverviews(getAllOverviews()); }, [tab]);
+  useEffect(() => { setOverviews(getAllOverviews()); }, [tab, subject]);
 
   const totalQ = overviews.reduce((s, o) => s + o.totalQuestions, 0);
-  const totalAttempted = overviews.reduce((s, o) => s + (safeGet(getStatsKey(o.topic))?.totalAttempted || 0), 0);
-  const totalCorrect = overviews.reduce((s, o) => s + (safeGet(getStatsKey(o.topic))?.totalCorrect || 0), 0);
+  const totalAttempted = overviews.reduce((s, o) => s + (safeGet(`prepflow_stats_${o.topic}`)?.totalAttempted || 0), 0);
+  const totalCorrect = overviews.reduce((s, o) => s + (safeGet(`prepflow_stats_${o.topic}`)?.totalCorrect || 0), 0);
   const overallAcc = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
   const totalMastered = overviews.reduce((s, o) => s + o.masteredQuestions, 0);
   const todayTotal = overviews.reduce((s, o) => s + o.todayCount, 0);
@@ -99,10 +90,7 @@ export default function Home() {
   const last30 = Array.from({ length: 30 }, (_, i) => {
     const d = new Date(); d.setDate(d.getDate() - i); const ds = d.toISOString().slice(0, 10);
     let c = 0;
-    overviews.forEach(o => {
-      const s = safeGet(getStatsKey(o.topic)) as TopicStats | null;
-      if (s?.daily[ds]) c += s.daily[ds].attempted;
-    });
+    overviews.forEach(o => { const s = safeGet(`prepflow_stats_${o.topic}`); if (s?.daily?.[ds]) c += s.daily[ds].attempted; });
     return { label: `${d.getDate()}/${d.getMonth() + 1}`, count: c };
   }).reverse();
   const maxD = Math.max(1, ...last30.map(d => d.count));
@@ -134,11 +122,23 @@ export default function Home() {
                 const st = SUBJECTS[s]; const so = overviews.filter(o => st.includes(o.topic));
                 const sa = so.length > 0 ? Math.round(so.reduce((a, o) => a + o.accuracy, 0) / so.length) : 0;
                 const stotal = so.reduce((a, o) => a + o.totalQuestions, 0);
+                const smastered = so.reduce((a, o) => a + o.masteredQuestions, 0);
                 return (
                   <button key={s} onClick={() => setSubject(s)} className="bg-white rounded-2xl shadow-sm border border-amber-200 p-5 hover:shadow-md transition text-center">
                     <span className="text-2xl mb-2 block">{s === "বাংলা" ? "🇧🇩" : s === "ইংরেজী" ? "🇬🇧" : s === "গণিত" ? "🔢" : s === "সাধারণ জ্ঞান" ? "🌍" : s === "বিজ্ঞান" ? "🔬" : "💻"}</span>
                     <span className="font-semibold text-amber-900 text-sm">{s}</span>
-                    {stotal > 0 && <div className="mt-2"><div className="w-full h-1.5 bg-gray-200 rounded-full"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} /></div><p className="text-xs text-gray-500 mt-1">{sa}% ({stotal} প্রশ্ন)</p></div>}
+                    {stotal > 0 && (
+                      <div className="mt-2">
+                        <div className="w-full h-1.5 bg-gray-200 rounded-full">
+                          <div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} />
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                          <span>{sa}%</span>
+                          <span>{smastered}/{stotal} মাস্টার্ড</span>
+                        </div>
+                      </div>
+                    )}
+                    {stotal === 0 && <p className="text-xs text-gray-400 mt-1">শুরু করুন</p>}
                   </button>
                 );
               })}
@@ -154,8 +154,28 @@ export default function Home() {
                   const o = overviews.find(x => x.topic === t); const has = o && o.totalQuestions > 0;
                   return (
                     <button key={t} onClick={() => setTopic(t)} className="bg-white rounded-xl border border-amber-200 p-4 hover:bg-amber-50 transition text-left">
-                      <div className="flex items-center justify-between"><span className="font-medium text-amber-900 text-sm">{t}</span>{has && <span className={`text-xs px-2 py-0.5 rounded-full ${o.accuracy >= 80 ? "bg-green-100 text-green-700" : o.accuracy >= 50 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>{o.accuracy}%</span>}</div>
-                      {has && <div className="mt-2"><div className="flex gap-1 text-xs text-gray-500"><span>🟢 {o.masteredQuestions}</span><span>🟡 {o.learningQuestions}</span><span>⚪ {o.newQuestions}</span></div>{o.lastPracticed && <p className="text-xs text-gray-400 mt-1">শেষ: {o.lastPracticed}{o.todayCount > 0 && ` | আজ: ${o.todayCount}টি`}</p>}</div>}
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-amber-900 text-sm">{t}</span>
+                        {has && (
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${o.accuracy >= 80 ? "bg-green-100 text-green-700" : o.accuracy >= 50 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>
+                            {o.accuracy}%
+                          </span>
+                        )}
+                      </div>
+                      {has && (
+                        <div className="mt-2">
+                          <div className="flex gap-1 text-xs text-gray-500">
+                            <span>🟢 {o.masteredQuestions}</span>
+                            <span>🟡 {o.learningQuestions}</span>
+                            <span>⚪ {o.newQuestions}</span>
+                          </div>
+                          {o.lastPracticed && (
+                            <p className="text-xs text-gray-400 mt-1">
+                              শেষ: {o.lastPracticed}{o.todayCount > 0 && ` | আজ: ${o.todayCount}টি`}
+                            </p>
+                          )}
+                        </div>
+                      )}
                       {!has && <p className="text-xs text-gray-400 mt-1">শুরু করুন</p>}
                     </button>
                   );
