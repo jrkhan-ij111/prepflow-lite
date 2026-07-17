@@ -50,19 +50,35 @@ function saveRecord(record: SessionRecord) {
   localStorage.setItem(HISTORY_KEY, JSON.stringify(records));
 }
 
-// ---------- API call to DeepSeek ----------
-async function generateMCQs(sourceText: string, topic: string, count: number = 5): Promise<MCQ[]> {
-  const res = await fetch("/api/generate-mcq", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sourceText, topic, count }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Unknown error" }));
-    throw new Error(err.error || "Generation failed");
+// ---------- ডামি MCQ জেনারেটর (কোনো API লাগবে না) ----------
+function generateDummyMCQs(sourceText: string, topic: string, count: number = 5): MCQ[] {
+  const sentences = sourceText
+    .split(/[।!?]/)
+    .map(s => s.trim())
+    .filter(s => s.length > 15);
+  if (sentences.length === 0) return [];
+  const mcqs: MCQ[] = [];
+  for (let i = 0; i < count; i++) {
+    const s = sentences[Math.floor(Math.random() * sentences.length)];
+    const question = `নিচের বাক্যটির মূল বক্তব্য কী?\n"${s}…"`;
+    const correct = `বাক্যটি ${topic} সম্পর্কে একটি গুরুত্বপূর্ণ তথ্য প্রদান করে।`;
+    const wrongs = [
+      "এটি একটি সম্পূর্ণ ভুল ধারণা।",
+      "বাক্যটির কোনো নির্দিষ্ট অর্থ নেই।",
+      "উক্ত বাক্যটি অপ্রাসঙ্গিক।"
+    ];
+    const options = [correct, wrongs[0], wrongs[1], wrongs[2]].sort(() => Math.random() - 0.5);
+    const correctIndex = options.indexOf(correct);
+    mcqs.push({
+      id: `q-${i}-${Date.now()}`,
+      question,
+      options,
+      correctIndex,
+      explanation: correct,
+      topic,
+    });
   }
-  const data = await res.json();
-  return data.mcqs;
+  return mcqs;
 }
 
 // ---------- Main App ----------
@@ -119,7 +135,7 @@ export default function Home() {
   }).reverse();
 
   // ---------- Handlers ----------
-  const handleGenerate = async () => {
+  const handleGenerate = () => {
     if (!sourceText.trim() || !selectedTopic) return;
     setLoading(true);
     setErrorMsg("");
@@ -127,18 +143,16 @@ export default function Home() {
     setCurrentIndex(0);
     setSelectedOption(null);
     setSessionScores([]);
-    try {
-      const newMCQs = await generateMCQs(sourceText, selectedTopic, 5);
+    setTimeout(() => {
+      const newMCQs = generateDummyMCQs(sourceText, selectedTopic, 5);
       if (newMCQs.length === 0) {
         setErrorMsg("কোনো MCQ তৈরি হয়নি। টেক্সট আরও বড় দিন।");
+        setLoading(false);
         return;
       }
       setMcqs(newMCQs);
-    } catch (err: any) {
-      setErrorMsg(err.message || "MCQ তৈরিতে সমস্যা।");
-    } finally {
       setLoading(false);
-    }
+    }, 500);
   };
 
   const handleOptionClick = (idx: number) => {
@@ -186,7 +200,7 @@ export default function Home() {
     <main className="max-w-4xl mx-auto px-4 py-6 sm:py-10">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-amber-800">PrepFlow Lite</h1>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-amber-800">PrepFlow</h1>
         <div className="flex gap-2">
           {(["practice", "progress"] as const).map(tab => (
             <button
@@ -277,7 +291,7 @@ export default function Home() {
                     onChange={e => setSourceText(e.target.value)}
                     rows={6}
                     className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent"
-                    placeholder="এখানে আপনার নোট/টেক্সট পেস্ট করুন (DeepSeek AI দিয়ে MCQ তৈরি হবে)"
+                    placeholder="এখানে আপনার নোট/টেক্সট পেস্ট করুন (ডামি MCQ তৈরি হবে)"
                   />
                   {errorMsg && <p className="text-red-600 text-sm mt-2">{errorMsg}</p>}
                   <button
@@ -294,7 +308,7 @@ export default function Home() {
               {loading && (
                 <div className="text-center text-amber-700 mt-10">
                   <div className="animate-spin inline-block w-8 h-8 border-4 border-amber-300 border-t-amber-600 rounded-full mb-2"></div>
-                  <p>DeepSeek AI প্রশ্ন তৈরি করছে...</p>
+                  <p>প্রশ্ন তৈরি হচ্ছে...</p>
                 </div>
               )}
 
