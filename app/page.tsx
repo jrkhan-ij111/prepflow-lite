@@ -1,4 +1,3 @@
-// app/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -142,7 +141,6 @@ export default function Home() {
   const totalMastered = overviews.reduce((sum, o) => sum + o.masteredQuestions, 0);
   const todayTotal = overviews.reduce((sum, o) => sum + o.todayCount, 0);
 
-  // ✅ ৩০ দিনের চার্ট
   const last30Days = Array.from({ length: 30 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - i);
@@ -177,6 +175,20 @@ export default function Home() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Claude AI লিংক */}
+      <div className="bg-gradient-to-r from-purple-500 to-indigo-500 rounded-2xl p-4 shadow-md text-center mb-6">
+        <p className="text-white font-medium text-sm mb-2">🤖 কঠিন কিছু বুঝতে চান? Claude AI-কে জিজ্ঞাসা করুন</p>
+        <a
+          href="https://claude.ai"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block bg-white text-purple-700 px-6 py-2 rounded-xl text-sm font-semibold hover:bg-purple-50 transition"
+        >
+          Claude খুলুন →
+        </a>
+        <p className="text-white/70 text-xs mt-1">ফ্রি • কোনো API key লাগবে না</p>
       </div>
 
       {activeTab === "practice" && (
@@ -318,7 +330,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* ✅ ৩০ দিনের চার্ট */}
+          {/* ৩০ দিনের চার্ট */}
           <div className="bg-white rounded-2xl shadow-sm border border-amber-200 p-5 overflow-x-auto">
             <h3 className="font-bold text-lg text-amber-800 mb-3">গত ৩০ দিনের অনুশীলন</h3>
             <div className="flex items-end justify-between gap-1 min-w-[600px]" style={{ height: 100 }}>
