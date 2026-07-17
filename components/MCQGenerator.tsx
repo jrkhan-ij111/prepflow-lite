@@ -27,7 +27,7 @@ export default function MCQGenerator({ topic }: Props) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] || null;
     setFile(f);
-    if (f) setTextInput(""); // clear text if file chosen
+    if (f) setTextInput("");
   };
 
   const clearFile = () => {
@@ -40,7 +40,6 @@ export default function MCQGenerator({ topic }: Props) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
-        // remove data URL prefix (keep only base64 body)
         const base64 = result.split(",")[1];
         resolve(base64);
       };
@@ -64,15 +63,12 @@ export default function MCQGenerator({ topic }: Props) {
       const apiKey = process.env.NEXT_PUBLIC_GEMINI_KEY;
       if (!apiKey) throw new Error("Gemini API key missing");
 
-      // Build parts array for Gemini
       const parts: any[] = [];
 
-      // Text part
       if (textInput.trim()) {
         parts.push({ text: textInput.trim() });
       }
 
-      // File part (PDF/image)
       if (file) {
         const base64Data = await toBase64(file);
         parts.push({
@@ -98,8 +94,9 @@ export default function MCQGenerator({ topic }: Props) {
 
       parts.push({ text: promptText });
 
+      // ✅ পরিবর্তিত মডেল: gemini-1.5-flash
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -118,7 +115,6 @@ export default function MCQGenerator({ topic }: Props) {
       const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
       if (!rawText) throw new Error("API থেকে কোনো কনটেন্ট আসেনি");
 
-      // Strip possible markdown code fences
       const jsonString = rawText
         .replace(/```json\s*/gi, "")
         .replace(/```\s*/g, "")
@@ -160,13 +156,11 @@ export default function MCQGenerator({ topic }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Input area */}
       <div className="bg-white rounded-2xl border border-amber-200 p-5 shadow-sm">
         <h2 className="text-lg font-bold text-amber-800 mb-3">
           {topic} – MCQ তৈরি করুন
         </h2>
 
-        {/* Textarea */}
         <textarea
           className="w-full h-32 rounded-xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent resize-none"
           placeholder="এখানে আপনার নোট / টেক্সট পেস্ট করুন..."
@@ -178,7 +172,6 @@ export default function MCQGenerator({ topic }: Props) {
           disabled={loading}
         />
 
-        {/* File upload */}
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <label className="cursor-pointer bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 text-sm text-amber-800 hover:bg-amber-100 transition">
             📎 ফাইল সিলেক্ট করুন
@@ -205,7 +198,6 @@ export default function MCQGenerator({ topic }: Props) {
           )}
         </div>
 
-        {/* Generate button */}
         <button
           onClick={generateMCQs}
           disabled={loading || (!textInput.trim() && !file)}
@@ -219,7 +211,6 @@ export default function MCQGenerator({ topic }: Props) {
         )}
       </div>
 
-      {/* MCQ display */}
       {mcqs.length > 0 && (
         <div className="space-y-6">
           {mcqs.map((mcq, qIdx) => {
@@ -227,10 +218,7 @@ export default function MCQGenerator({ topic }: Props) {
             const isCorrect = submitted && userChoice === mcq.correctAnswer;
             const isWrong = submitted && userChoice && userChoice !== mcq.correctAnswer;
             return (
-              <div
-                key={qIdx}
-                className="bg-white rounded-2xl border border-amber-200 p-5 shadow-sm"
-              >
+              <div key={qIdx} className="bg-white rounded-2xl border border-amber-200 p-5 shadow-sm">
                 <p className="font-semibold text-gray-800 mb-3">
                   {qIdx + 1}. {mcq.question}
                 </p>
