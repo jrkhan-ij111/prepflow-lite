@@ -3,6 +3,10 @@
 
 import { useState, useRef } from "react";
 
+// ---------- কনফিগ (সহজে পরিবর্তনযোগ্য) ----------
+const GEMINI_MODEL = "gemini-3.5-flash";
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+
 interface MCQ {
   question: string;
   options: { A: string; B: string; C: string; D: string };
@@ -94,17 +98,14 @@ export default function MCQGenerator({ topic }: Props) {
 
       parts.push({ text: promptText });
 
-      // ✅ gemini-2.5-flash endpoint
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts }],
-          }),
-        }
-      );
+      // ✅ কনফিগ থেকে মডেল URL ব্যবহার
+      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts }],
+        }),
+      });
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
