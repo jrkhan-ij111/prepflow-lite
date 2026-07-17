@@ -44,7 +44,6 @@ export async function POST(req: Request) {
 
     parts.push({ text: promptText });
 
-    // ✅ Gemini 2.0 Flash (নিশ্চিত কাজ করে)
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
@@ -52,6 +51,14 @@ export async function POST(req: Request) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents: [{ parts }] }),
     });
+
+    // ✅ 429 রেট লিমিট চেক
+    if (response.status === 429) {
+      return NextResponse.json(
+        { error: "আজকের ফ্রি লিমিট শেষ হয়ে গেছে অথবা একটু বেশি দ্রুত রিকোয়েস্ট করা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।" },
+        { status: 429 }
+      );
+    }
 
     if (!response.ok) {
       const errText = await response.text();
