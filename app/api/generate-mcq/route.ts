@@ -24,10 +24,12 @@ export async function POST(req: Request) {
 
     const parts: any[] = [];
 
+    // Add text input if present
     if (textInput?.trim()) {
       parts.push({ text: textInput.trim() });
     }
 
+    // Add file if present (PDF or image)
     if (fileBase64 && fileMimeType) {
       parts.push({
         inline_data: {
@@ -39,14 +41,13 @@ export async function POST(req: Request) {
 
     const promptText = `তুমি একজন বিশেষজ্ঞ শিক্ষক ও BCS পরীক্ষার প্রশ্ন-নির্মাতা। নিচের সোর্স কনটেন্ট থেকে "${topic}" টপিকের উপর ${count}টি ইউনিক, সমালোচনামূলক (critical thinking), এবং BCS-মানের MCQ বাংলায় তৈরি করো।
 
-প্রথমে সোর্স কনটেন্টটি বিশ্লেষণ করে এর প্রধান উপ-বিষয়/অংশগুলো চিহ্নিত করো (উদাহরণ: যদি একাধিক নিয়ম, সংজ্ঞা, উদাহরণ, বা অনুচ্ছেদ থাকে, প্রতিটাকে আলাদা অংশ হিসেবে গণ্য করো)।
-তারপর মোট ${count}টি MCQ এমনভাবে তৈরি করো যাতে প্রতিটা প্রধান অংশ থেকে অন্তত একটি প্রশ্ন থাকে এবং কোনো একটি অংশ থেকে পুনরাবৃত্তিমূলকভাবে অনেকগুলো প্রশ্ন না আসে। লক্ষ্য: পুরো কনটেন্টের সুষম কভারেজ (balanced coverage), শুধু শুরুর অংশ থেকে না।
+প্রথমে সোর্স কনটেন্টটি বিশ্লেষণ করে এর প্রধান উপ-বিষয়/অংশগুলো চিহ্নিত করো। তারপর মোট ${count}টি MCQ এমনভাবে তৈরি করো যাতে প্রতিটা প্রধান অংশ থেকে অন্তত একটি প্রশ্ন থাকে।
 
-সোর্স কনটেন্ট থেকে খুবই সমালোচনামূলক (critical), BCS পরীক্ষার মানের ট্র্যাপি প্রশ্ন বানাও — শুধু সরাসরি তথ্য জিজ্ঞাসা না করে, ধারণাগত গভীরতা, ব্যতিক্রম, তুলনা, বা সূক্ষ্ম পার্থক্য পরীক্ষা করে এমন প্রশ্ন বানাও।
+সোর্স কনটেন্ট থেকে খুবই সমালোচনামূলক, BCS পরীক্ষার মানের ট্র্যাপি প্রশ্ন বানাও — শুধু সরাসরি তথ্য জিজ্ঞাসা না করে, ধারণাগত গভীরতা, ব্যতিক্রম, তুলনা, বা সূক্ষ্ম পার্থক্য পরীক্ষা করে এমন প্রশ্ন বানাও।
 
 প্রতিটি প্রশ্নে ঠিক ৪টি অপশন থাকবে, অপশন লেবেল সবসময় "A", "B", "C", "D" হবে।
-প্রতিটি প্রশ্নের জন্য 'difficulty' ফিল্ডে 'easy' অথবা 'hard' ট্যাগ দাও (hard মানে জটিল/গভীর ধারণা লাগে, easy মানে সরাসরি তথ্য মনে রাখলেই হয়)।
-প্রতিটি প্রশ্নের জন্য 'subtopic' ফিল্ডে সংক্ষিপ্ত উপ-বিষয়ের নাম দাও যা এই প্রশ্নটি কভার করছে।
+প্রতিটি প্রশ্নের জন্য 'difficulty' ফিল্ডে 'easy' অথবা 'hard' ট্যাগ দাও।
+প্রতিটি প্রশ্নের জন্য 'subtopic' ফিল্ডে সংক্ষিপ্ত উপ-বিষয়ের নাম দাও।
 
 উত্তর শুধুমাত্র JSON ফরম্যাটে দাও, কোনো অতিরিক্ত টেক্সট বা মার্কডাউন ব্যাকটিক্স ছাড়া।
 ফরম্যাট:
@@ -70,8 +71,14 @@ export async function POST(req: Request) {
     });
 
     if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error?.message || "Gemini API request failed");
+      const errText = await response.text();
+      console.error("Gemini API error:", errText);
+      let errMsg = "Gemini API request failed";
+      try {
+        const errData = JSON.parse(errText);
+        errMsg = errData.error?.message || errMsg;
+      } catch {}
+      throw new Error(errMsg);
     }
 
     const data = await response.json();
