@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import sandhiMCQs from "@/data/bangla/grammar/sandhi.json";
 import samasMCQs from "@/data/bangla/grammar/samas.json";
 
 interface MCQ {
@@ -15,7 +14,6 @@ interface MCQ {
 interface Props { topic: string; }
 
 const MCQ_BANK: Record<string, MCQ[]> = {
-  "বাংলা ব্যাকরণ": [...sandhiMCQs, ...samasMCQs],
   "বাংলা সাহিত্য": [
     { id: "bs1", question: "কাজী নজরুল ইসলামের জন্মস্থান?", options: ["ঢাকা", "চুরুলিয়া, বর্ধমান", "কলকাতা", "কুমিল্লা"], answer: 1, explanation: "পশ্চিমবঙ্গের বর্ধমান জেলার চুরুলিয়ায় জন্ম।" },
     { id: "bs2", question: "নজরুলের প্রথম প্রকাশিত কবিতা?", options: ["বিদ্রোহী", "আনন্দময়ীর আগমনে", "মুক্তি", "প্রলয়শিখা"], answer: 2, explanation: "১৯১৯ সালে 'মুক্তি' প্রকাশিত।" },
