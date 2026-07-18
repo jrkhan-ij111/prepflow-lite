@@ -16,7 +16,7 @@ interface TopicOverview {
   lastPracticed: string | null;
 }
 
-// ---------- Subjects ----------
+// ---------- Subjects & Sub-topics ----------
 const SUBJECTS: Record<string, string[]> = {
   "বাংলা": ["বাংলা ব্যাকরণ", "বাংলা সাহিত্য"],
   "ইংরেজী": ["English Grammar", "English Literature"],
@@ -24,6 +24,22 @@ const SUBJECTS: Record<string, string[]> = {
   "সাধারণ জ্ঞান": ["বাংলাদেশ", "আন্তর্জাতিক", "সংবিধান", "ভূগোল", "ইতিহাস", "অর্থনীতি"],
   "বিজ্ঞান": ["পদার্থবিজ্ঞান", "রসায়নবিজ্ঞান", "জীববিজ্ঞান", "পরিবেশ"],
   "আইসিটি": ["কম্পিউটার", "তথ্য প্রযুক্তি", "ইন্টারনেট", "প্রোগ্রামিং"],
+};
+
+// ---------- Specific Topic Lists ----------
+const SUBJECT_TOPICS: Record<string, Record<string, string[]>> = {
+  "বাংলা": {
+    "বাংলা ব্যাকরণ": [
+      "ভাষা, বর্ণ, শব্দ, বাক্য", "উপসর্গ", "অনুসর্গ", "সমাস", "কারক ও বিভক্তি",
+      "প্রকৃতি ও প্রত্যয়", "সন্ধি", "বিপরীত শব্দ", "সমার্থক শব্দ", "বাগধারা",
+      "পারিভাষিক শব্দ", "বানান ও বাক্যশুদ্ধি",
+    ],
+    "বাংলা সাহিত্য": [
+      "প্রাচীন ও মধ্যযুগ (চর্যাপদ, শ্রীকৃষ্ণকীর্তন, মঙ্গলকাব্য, বৈষ্ণব পদাবলি)",
+      "ঈশ্বরচন্দ্র বিদ্যাসাগর", "বঙ্কিমচন্দ্র চট্টোপাধ্যায়", "মাইকেল মধুসূদন দত্ত",
+      "রবীন্দ্রনাথ ঠাকুর", "কাজী নজরুল ইসলাম", "মুনীর চৌধুরী ও অন্যান্য আধুনিক সাহিত্যিক",
+    ],
+  },
 };
 
 // ---------- Safe localStorage ----------
@@ -68,6 +84,27 @@ function getAllOverviews(): TopicOverview[] {
   const arr: TopicOverview[] = [];
   Object.values(SUBJECTS).forEach(topics => topics.forEach(t => arr.push(getTopicOverview(t))));
   return arr;
+}
+
+// Aggregate stats for specific topic (e.g., "বাংলা ব্যাকরণ → কারক")
+function getSubTopicStats(subject: string, subTopic: string, specificTopic: string): { questions: number; accuracy: number } {
+  let questions = 0, correct = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith(`prepflow_stats_${subject}_${subTopic}`)) continue;
+    const raw = safeGet(key);
+    if (!raw) continue;
+    try {
+      const stats = raw;
+      // aggregate perQuestion stats
+      Object.entries(stats.perQuestion || {}).forEach(([qId, qs]: any) => {
+        questions += qs.attempts || 0;
+        correct += qs.correct || 0;
+      });
+    } catch {}
+  }
+  const accuracy = questions > 0 ? Math.round((correct / questions) * 100) : 0;
+  return { questions, accuracy };
 }
 
 export default function Home() {
@@ -139,7 +176,7 @@ export default function Home() {
               <button onClick={() => setSubject(null)} className="text-amber-700 text-sm underline">← বিষয় পরিবর্তন</button>
               <h2 className="text-xl font-bold text-amber-800">{subject}</h2>
 
-              {/* Subject Progress */}
+              {/* Subject Progress Card */}
               {(() => {
                 const sa = subjectOverviews.length > 0 ? Math.round(subjectOverviews.reduce((a, o) => a + o.accuracy, 0) / subjectOverviews.length) : 0;
                 const stotal = subjectOverviews.reduce((a, o) => a + o.totalQuestions, 0);
@@ -154,6 +191,34 @@ export default function Home() {
                 );
               })()}
 
+              {/* বাংলার জন্য বিশেষ টপিক-ভিত্তিক প্রগ্রেস */}
+              {subject === "বাংলা" && SUBJECT_TOPICS["বাংলা"] && (
+                <div className="space-y-4">
+                  {Object.entries(SUBJECT_TOPICS["বাংলা"]).map(([subTopic, topics]) => (
+                    <div key={subTopic} className="bg-white rounded-2xl shadow-sm border border-amber-200 p-4">
+                      <h3 className="font-bold text-amber-800 mb-3">{subTopic}</h3>
+                      <div className="space-y-2">
+                        {topics.map(t => {
+                          const stats = getSubTopicStats("বাংলা", subTopic, t);
+                          return (
+                            <div key={t} className="flex items-center gap-3">
+                              <span className="w-32 text-xs truncate">{t}</span>
+                              <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div className="h-full bg-amber-500 rounded-full" style={{ width: `${stats.accuracy}%` }} />
+                              </div>
+                              <span className="text-xs text-gray-500 w-16 text-right">
+                                {stats.questions > 0 ? `${stats.accuracy}% (${stats.questions})` : "—"}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Subject Topic Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {SUBJECTS[subject].map(t => {
                   const o = allOverview.find(x => x.topic === t); const has = o && o.totalQuestions > 0;
