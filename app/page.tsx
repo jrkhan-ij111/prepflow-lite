@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import MCQGenerator from "@/components/MCQGenerator";
+import LocalMCQViewer from "@/components/LocalMCQViewer";
 import ExternalTracker from "@/components/ExternalTracker";
 import StudyTracker from "@/components/StudyTracker";
 
@@ -90,6 +91,7 @@ export default function Home() {
   const [tab, setTab] = useState<"practice" | "progress">("practice");
   const [subject, setSubject] = useState<string | null>(null);
   const [topic, setTopic] = useState<string | null>(null);
+  const [mcqMode, setMcqMode] = useState<"ai" | "local">("ai");
 
   useEffect(() => { getAllOverviews(); }, [tab, subject]);
 
@@ -117,11 +119,7 @@ export default function Home() {
         <div>
           {!subject && (
             <>
-              {/* Study Tracker */}
-              <div className="mb-6">
-                <StudyTracker />
-              </div>
-              {/* Subject Grid */}
+              <div className="mb-6"><StudyTracker /></div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {Object.entries(SUBJECTS).map(([s, { icon }]) => {
                   const so = all.filter(o => SUBJECTS[s].topics.includes(o.topic));
@@ -191,8 +189,15 @@ export default function Home() {
 
           {topic && (
             <div className="space-y-6">
-              <div className="flex justify-between"><button onClick={() => { setSubject(null); setTopic(null); }} className="text-amber-700 text-sm underline">← বিষয় পরিবর্তন</button><span className="text-sm font-medium bg-amber-100 px-3 py-1 rounded-full">{topic}</span></div>
-              <MCQGenerator topic={topic} />
+              <div className="flex justify-between">
+                <button onClick={() => { setSubject(null); setTopic(null); }} className="text-amber-700 text-sm underline">← বিষয় পরিবর্তন</button>
+                <span className="text-sm font-medium bg-amber-100 px-3 py-1 rounded-full">{topic}</span>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => setMcqMode("ai")} className={`px-4 py-2 rounded-xl text-sm font-semibold ${mcqMode === "ai" ? "bg-amber-500 text-white" : "bg-white border border-amber-200"}`}>🤖 AI MCQ</button>
+                <button onClick={() => setMcqMode("local")} className={`px-4 py-2 rounded-xl text-sm font-semibold ${mcqMode === "local" ? "bg-amber-500 text-white" : "bg-white border border-amber-200"}`}>📚 Local MCQ</button>
+              </div>
+              {mcqMode === "ai" ? <MCQGenerator topic={topic} /> : <LocalMCQViewer topic={topic} />}
             </div>
           )}
         </div>
@@ -209,26 +214,14 @@ export default function Home() {
               const smastered = so.reduce((a, o) => a + o.masteredQuestions, 0);
               return (
                 <div key={s} className="bg-white rounded-2xl shadow-sm border border-amber-200 p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-bold text-amber-800">{icon} {s}</h3>
-                    <span className="text-sm text-gray-500">{smastered}/{stotal} মাস্টার্ড</span>
-                  </div>
-                  {stotal > 0 && (
-                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} />
-                    </div>
-                  )}
+                  <div className="flex items-center justify-between mb-3"><h3 className="font-bold text-amber-800">{icon} {s}</h3><span className="text-sm text-gray-500">{smastered}/{stotal} মাস্টার্ড</span></div>
+                  {stotal > 0 && <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} /></div>}
                 </div>
               );
             })}
           </div>
           <ExternalTracker onSessionAdded={() => getAllOverviews()} />
-          <div className="mt-6">
-            <h3 className="text-lg font-bold text-amber-800 mb-3 text-center">🤖 AI সহায়ক</h3>
-            <div className="grid grid-cols-3 gap-3">
-              {aiTools.map(tool => (<a key={tool.name} href={tool.url} target="_blank" rel="noopener noreferrer" className={`bg-gradient-to-br ${tool.color} rounded-2xl p-4 text-center shadow-lg hover:scale-105 transition-transform`}><span className="text-2xl block mb-1">{tool.emoji}</span><h4 className="text-white font-bold text-sm">{tool.name}</h4></a>))}
-            </div>
-          </div>
+          <div className="mt-6"><h3 className="text-lg font-bold text-amber-800 mb-3 text-center">🤖 AI সহায়ক</h3><div className="grid grid-cols-3 gap-3">{aiTools.map(tool => (<a key={tool.name} href={tool.url} target="_blank" rel="noopener noreferrer" className={`bg-gradient-to-br ${tool.color} rounded-2xl p-4 text-center shadow-lg hover:scale-105 transition-transform`}><span className="text-2xl block mb-1">{tool.emoji}</span><h4 className="text-white font-bold text-sm">{tool.name}</h4></a>))}</div></div>
         </div>
       )}
     </main>
