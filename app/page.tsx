@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import MCQGenerator from "@/components/MCQGenerator";
 import ExternalTracker from "@/components/ExternalTracker";
+import StudyTracker from "@/components/StudyTracker";
 
 // ---------- Types ----------
 interface TopicOverview {
@@ -115,21 +116,28 @@ export default function Home() {
       {tab === "practice" && (
         <div>
           {!subject && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {Object.entries(SUBJECTS).map(([s, { icon }]) => {
-                const so = all.filter(o => SUBJECTS[s].topics.includes(o.topic));
-                const sa = so.length > 0 ? Math.round(so.reduce((a, o) => a + o.accuracy, 0) / so.length) : 0;
-                const st = so.reduce((a, o) => a + o.totalQuestions, 0);
-                const sm = so.reduce((a, o) => a + o.masteredQuestions, 0);
-                return (
-                  <button key={s} onClick={() => setSubject(s)} className="bg-white rounded-2xl shadow-sm border border-amber-200 p-4 hover:shadow-md transition text-center">
-                    <span className="text-2xl mb-1 block">{icon}</span>
-                    <span className="font-semibold text-amber-900 text-xs">{s}</span>
-                    {st > 0 && <div className="mt-1"><div className="w-full h-1 bg-gray-200 rounded-full"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} /></div><p className="text-xs text-gray-500 mt-0.5">{sa}% ({sm}/{st})</p></div>}
-                  </button>
-                );
-              })}
-            </div>
+            <>
+              {/* Study Tracker */}
+              <div className="mb-6">
+                <StudyTracker />
+              </div>
+              {/* Subject Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {Object.entries(SUBJECTS).map(([s, { icon }]) => {
+                  const so = all.filter(o => SUBJECTS[s].topics.includes(o.topic));
+                  const sa = so.length > 0 ? Math.round(so.reduce((a, o) => a + o.accuracy, 0) / so.length) : 0;
+                  const st = so.reduce((a, o) => a + o.totalQuestions, 0);
+                  const sm = so.reduce((a, o) => a + o.masteredQuestions, 0);
+                  return (
+                    <button key={s} onClick={() => setSubject(s)} className="bg-white rounded-2xl shadow-sm border border-amber-200 p-4 hover:shadow-md transition text-center">
+                      <span className="text-2xl mb-1 block">{icon}</span>
+                      <span className="font-semibold text-amber-900 text-xs">{s}</span>
+                      {st > 0 && <div className="mt-1"><div className="w-full h-1 bg-gray-200 rounded-full"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} /></div><p className="text-xs text-gray-500 mt-0.5">{sa}% ({sm}/{st})</p></div>}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
           )}
 
           {subject && !topic && (
