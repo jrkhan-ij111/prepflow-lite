@@ -1,80 +1,58 @@
 // app/api/local-mcq/route.ts
 import { NextResponse } from "next/server";
-
-// موجود JSON files
-import sandhiMCQs from "@/data/bangla/grammar/sandhi.json";
-import samasMCQs from "@/data/bangla/grammar/samas.json";
-import ictMCQs from "@/data/ict/computer.json";
-import constitutionMCQs from "@/data/gk/bangladesh/constitution.json";
-import pcMCQs from "@/data/math/permutation_combination.json";
-
-const LOCAL_BANK: Record<string, any[]> = {
-  "বাংলা ব্যাকরণ": [...sandhiMCQs, ...samasMCQs],
-  "বাংলা সাহিত্য": [],
-  "কম্পিউটার ও আইসিটি": ictMCQs,
-  "হার্ডওয়্যার": ictMCQs,
-  "মেমোরি": ictMCQs,
-  "সফটওয়্যার": ictMCQs,
-  "সংখ্যা পদ্ধতি": ictMCQs,
-  "নেটওয়ার্কিং": ictMCQs,
-  "আধুনিক প্রযুক্তি": ictMCQs,
-  "সংবিধান": constitutionMCQs,
-  "বীজগণিত": pcMCQs,
-  "জ্যামিতি ও পরিমিতি": pcMCQs,
-  "পাটিগণিত": [],
-  "ত্রিকোণমিতি": [],
-  "English Grammar": [],
-  "English Literature": [],
-  "ভাষাগত যৌক্তিক বিচার": [],
-  "সংখ্যাগত ক্ষমতা": [],
-  "স্থানিক ক্ষমতা": [],
-  "বিন্যাস": [],
-  "ডাটা ইন্টারপ্রিটেশন": [],
-  "প্রাচীন ইতিহাস": [],
-  "ব্রিটিশ ও পাকিস্তান": [],
-  "মুক্তিযুদ্ধ": [],
-  "ভূগোল": [],
-  "জাতীয় বিষয়": [],
-  "অর্থনীতি": [],
-  "বৈশ্বিক ইতিহাস": [],
-  "দেশ পরিচিতি": [],
-  "আন্তর্জাতিক সংস্থা": [],
-  "আঞ্চলিক জোট": [],
-  "পরিবেশ": [],
-  "পুরস্কার": [],
-  "ভৌত বিজ্ঞান": [],
-  "জীববিজ্ঞান": [],
-  "আধুনিক বিজ্ঞান": [],
-  "বাংলাদেশ ভূগোল": [],
-  "দুর্যোগ ব্যবস্থাপনা": [],
-  "নৈতিকতা": [],
-  "সুশাসন": [],
-  "ব্যাংকিং টার্মস": [],
-  "বাংলাদেশ ব্যাংক": [],
-  "ফিন্যান্স": [],
-};
+import fs from "fs";
+import path from "path";
 
 export async function POST(req: Request) {
   try {
     const { topic } = await req.json();
-    if (!topic) {
-      return NextResponse.json({ error: "topic প্রয়োজন" }, { status: 400 });
+    if (!topic) return NextResponse.json({ error: "topic প্রয়োজন" }, { status: 400 });
+
+    const dataDir = path.join(process.cwd(), "data");
+    let mcqs: any[] = [];
+
+    // বাংলা ব্যাকরণ = grammar ফোল্ডারের সব JSON
+    if (topic === "বাংলা ব্যাকরণ") {
+      const dir = path.join(dataDir, "bangla", "grammar");
+      if (fs.existsSync(dir)) {
+        const files = fs.readdirSync(dir).filter(f => f.endsWith(".json"));
+        for (const file of files) {
+          const content = JSON.parse(fs.readFileSync(path.join(dir, file), "utf-8"));
+          if (Array.isArray(content)) mcqs.push(...content);
+        }
+      }
+    }
+    // অন্যান্য টপিক
+    else {
+      const topicFile = topic.toLowerCase().replace(/\s+/g, "_") + ".json";
+      // search in data folder
+      const found = findFile(dataDir, topicFile);
+      if (found) {
+        mcqs = JSON.parse(fs.readFileSync(found, "utf-8"));
+      }
     }
 
-    const mcqs = LOCAL_BANK[topic];
-
-    if (!mcqs || mcqs.length === 0) {
-      return NextResponse.json({ 
-        error: "এই টপিকের MCQ এখনো তৈরি হয়নি। নতুন MCQ তৈরি করতে AI MCQ ব্যবহার করুন।", 
-        mcqs: [] 
-      }, { status: 404 });
+    if (mcqs.length === 0) {
+      return NextResponse.json({ error: "এই টপিকের MCQ এখনো তৈরি হয়নি", mcqs: [] }, { status: 404 });
     }
 
-    // Random shuffle for variety
-    const shuffled = [...mcqs].sort(() => Math.random() - 0.5);
-
-    return NextResponse.json({ mcqs: shuffled, total: mcqs.length });
+    return NextResponse.json({ mcqs: [...mcqs].sort(() => Math.random() - 0.5), total: mcqs.length });
   } catch (err: any) {
     return NextResponse.json({ error: "লোড ত্রুটি: " + err.message }, { status: 500 });
   }
+}
+
+function findFile(dir: string, fileName: string): string | null {
+  if (!fs.existsSync(dir)) return null;
+  const list = fs.readdirSync(dir);
+  for (const item of list) {
+    const full = path.join(dir, item);
+    if (fs.statSync(full).isDirectory()) {
+      const found = findFile(full, fileName);
+      if (found) return found;
+    } else if (item === fileName) {
+      return full;
+    }
+  }
+  return null;
 }
