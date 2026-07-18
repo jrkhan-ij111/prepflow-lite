@@ -14,6 +14,7 @@ interface MCQ {
 interface Props { topic: string; }
 
 const MCQ_BANK: Record<string, MCQ[]> = {
+  "বাংলা ব্যাকরণ": samasMCQs,
   "বাংলা সাহিত্য": [
     { id: "bs1", question: "কাজী নজরুল ইসলামের জন্মস্থান?", options: ["ঢাকা", "চুরুলিয়া, বর্ধমান", "কলকাতা", "কুমিল্লা"], answer: 1, explanation: "পশ্চিমবঙ্গের বর্ধমান জেলার চুরুলিয়ায় জন্ম।" },
     { id: "bs2", question: "নজরুলের প্রথম প্রকাশিত কবিতা?", options: ["বিদ্রোহী", "আনন্দময়ীর আগমনে", "মুক্তি", "প্রলয়শিখা"], answer: 2, explanation: "১৯১৯ সালে 'মুক্তি' প্রকাশিত।" },
@@ -109,6 +110,7 @@ export default function LocalMCQViewer({ topic }: Props) {
     if (found && found.length > 0) {
       setMcqs([...found].sort(() => Math.random() - 0.5));
       setCurrentIndex(0); setSelectedOption(null); setIsRevealed(false); setScore(0); setQuizFinished(false);
+      setErrorMsg("");
     } else {
       setErrorMsg("এই টপিকের MCQ এখনো তৈরি হয়নি। AI MCQ ব্যবহার করুন।");
     }
