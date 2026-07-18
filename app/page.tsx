@@ -6,7 +6,6 @@ import LocalMCQViewer from "@/components/LocalMCQViewer";
 import ExternalTracker from "@/components/ExternalTracker";
 import StudyTracker from "@/components/StudyTracker";
 
-// ---------- Types ----------
 interface TopicOverview {
   topic: string;
   accuracy: number;
@@ -18,7 +17,6 @@ interface TopicOverview {
   lastPracticed: string | null;
 }
 
-// ---------- Subjects with Icons ----------
 const SUBJECTS: Record<string, { topics: string[]; icon: string }> = {
   "বাংলা": { topics: ["বাংলা ব্যাকরণ", "বাংলা সাহিত্য"], icon: "🇧🇩" },
   "ইংরেজী": { topics: ["English Grammar", "English Literature"], icon: "🇬🇧" },
@@ -33,22 +31,6 @@ const SUBJECTS: Record<string, { topics: string[]; icon: string }> = {
   "ব্যাংকিং ও ফিন্যান্স": { topics: ["ব্যাংকিং টার্মস", "বাংলাদেশ ব্যাংক", "ফিন্যান্স"], icon: "💰" },
 };
 
-// ---------- Detailed Topic Lists ----------
-const SUBJECT_TOPICS: Record<string, Record<string, string[]>> = {
-  "বাংলা": { "বাংলা ব্যাকরণ": ["ধ্বনি-বর্ণ","শব্দ","পদ","উপসর্গ","অনুসর্গ","সন্ধি","সমাস","প্রকৃতি-প্রত্যয়","বাক্য","বিপরীত শব্দ","সমার্থক","বাগধারা","বানান"], "বাংলা সাহিত্য": ["চর্যাপদ","মধ্যযুগ","বৈষ্ণব","বিদ্যাসাগর","বঙ্কিম","মধুসূদন","রবীন্দ্রনাথ","নজরুল","মীর মশাররফ","শরৎচন্দ্র","জসীমউদ্দীন","মুনীর চৌধুরী"] },
-  "ইংরেজী": { "English Grammar": ["Parts of Speech","Tense","Voice","Narration","Clause","Preposition","Phrases","Synonyms","Spelling","Correction"], "English Literature": ["Periods","Shakespeare","Milton","Wordsworth","Shelley","Keats","Dickens","Shaw","Eliot","Yeats","Terms"] },
-  "গণিত": { "পাটিগণিত": ["সংখ্যা","লসাগু","অনুপাত","শতকরা","লাভ-ক্ষতি","সুদ","সময়-কাজ","গড়"], "বীজগণিত": ["সূত্র","সমীকরণ","অসমতা","লগারিদম","ধারা","সেট","সম্ভাব্যতা"], "জ্যামিতি ও পরিমিতি": ["রেখা-কোণ","ত্রিভুজ","চতুর্ভুজ","বৃত্ত","পরিমিতি"], "ত্রিকোণমিতি": ["অনুপাত","উচ্চতা"] },
-  "মানসিক দক্ষতা": { "ভাষাগত": ["রক্তসম্পর্ক","দিক","ঘড়ি"], "সংখ্যাগত": ["সিরিজ","কোডিং"], "স্থানিক": ["আয়না","পানি","চিত্র"], "বিন্যাস": ["সিটিং","পাজল"], "ডাটা": ["টেবিল","চার্ট"] },
-  "সাধারণ জ্ঞান (বাংলাদেশ)": { "প্রাচীন ইতিহাস": ["জনপদ","পাল","মোঘল"], "ব্রিটিশ": ["১৭৫৭","ভাষা","ছয় দফা"], "মুক্তিযুদ্ধ": ["৭ মার্চ","মুজিবনগর","বীরশ্রেষ্ঠ"], "ভূগোল": ["সীমানা","নদী"], "জাতীয়": ["প্রতীক","প্রজেক্ট"], "সংবিধান": ["অনুচ্ছেদ"], "অর্থনীতি": ["জিডিপি","বাজেট"] },
-  "সাধারণ জ্ঞান (আন্তর্জাতিক)": { "ইতিহাস": ["বিশ্বযুদ্ধ","স্নায়ু"], "দেশ": ["রাজধানী","মুদ্রা"], "সংস্থা": ["UN","IMF"], "জোট": ["SAARC","ASEAN","OIC","EU","BRICS"], "পরিবেশ": ["COP","প্যারিস"], "পুরস্কার": ["নোবেল","অলিম্পিক"] },
-  "সাধারণ বিজ্ঞান": { "ভৌত": ["পদার্থ","আলো","শব্দ","বিদ্যুৎ"], "জীব": ["কোষ","রক্ত","রোগ","ভিটামিন"], "আধুনিক": ["মহাবিশ্ব","বায়োটেক"] },
-  "কম্পিউটার ও আইসিটি": { "হার্ডওয়্যার": ["ইনপুট","আউটপুট"], "মেমোরি": ["RAM","ROM"], "সফটওয়্যার": ["OS","Office"], "সংখ্যা": ["বাইনারি"], "নেটওয়ার্ক": ["LAN","IP","ক্লাউড"], "প্রযুক্তি": ["AI","সাইবার"] },
-  "ভূগোল ও পরিবেশ": { "বাংলাদেশ": ["অবস্থান","প্রকৃতি"], "পরিবেশ": ["বাস্তুতন্ত্র","ওজোন"], "দুর্যোগ": ["বন্যা","ভূমিকম্প","SDG"] },
-  "নৈতিকতা ও সুশাসন": { "নৈতিকতা": ["উৎস","গুণাবলি"], "সুশাসন": ["উপাদান","RTI"] },
-  "ব্যাংকিং ও ফিন্যান্স": { "টার্মস": ["CRR","SLR","Repo"], "বাংলাদেশ ব্যাংক": ["ইতিহাস","মুদ্রানীতি"], "ফিন্যান্স": ["জাবেদা","ব্যালেন্স"] },
-};
-
-// ---------- Helpers ----------
 function safeGet(key: string): any | null {
   if (typeof window === "undefined") return null;
   try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : null; } catch { return null; }
@@ -75,23 +57,11 @@ function getAllOverviews(): TopicOverview[] {
   return arr;
 }
 
-function getSubTopicStats(subject: string, subTopic: string): { questions: number; accuracy: number } {
-  let q = 0, c = 0;
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (!key?.startsWith(`prepflow_stats_${subject}_${subTopic}`)) continue;
-    const raw = safeGet(key); if (!raw) continue;
-    try { Object.values(raw.perQuestion || {}).forEach((v: any) => { q += v.attempts || 0; c += v.correct || 0; }); } catch {}
-  }
-  return { questions: q, accuracy: q > 0 ? Math.round((c / q) * 100) : 0 };
-}
-
-// ---------- App ----------
 export default function Home() {
   const [tab, setTab] = useState<"practice" | "progress">("practice");
   const [subject, setSubject] = useState<string | null>(null);
   const [topic, setTopic] = useState<string | null>(null);
-  const [mcqMode, setMcqMode] = useState<"ai" | "local">("ai");
+  const [mcqMode, setMcqMode] = useState<"ai" | "local">("local");
 
   useEffect(() => { getAllOverviews(); }, [tab, subject]);
 
@@ -130,7 +100,7 @@ export default function Home() {
                     <button key={s} onClick={() => setSubject(s)} className="bg-white rounded-2xl shadow-sm border border-amber-200 p-4 hover:shadow-md transition text-center">
                       <span className="text-2xl mb-1 block">{icon}</span>
                       <span className="font-semibold text-amber-900 text-xs">{s}</span>
-                      {st > 0 && <div className="mt-1"><div className="w-full h-1 bg-gray-200 rounded-full"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} /></div><p className="text-xs text-gray-500 mt-0.5">{sa}% ({sm}/{st})</p></div>}
+                      {(st ?? 0) > 0 && <div className="mt-1"><div className="w-full h-1 bg-gray-200 rounded-full"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} /></div><p className="text-xs text-gray-500 mt-0.5">{sa}% ({sm}/{st})</p></div>}
                     </button>
                   );
                 })}
@@ -142,36 +112,6 @@ export default function Home() {
             <div className="space-y-4">
               <button onClick={() => setSubject(null)} className="text-amber-700 text-sm underline">← বিষয় পরিবর্তন</button>
               <h2 className="text-xl font-bold text-amber-800">{SUBJECTS[subject].icon} {subject}</h2>
-              {(() => {
-                const sa = subOverviews.length > 0 ? Math.round(subOverviews.reduce((a, o) => a + o.accuracy, 0) / subOverviews.length) : 0;
-                const st = subOverviews.reduce((a, o) => a + o.totalQuestions, 0);
-                const sm = subOverviews.reduce((a, o) => a + o.masteredQuestions, 0);
-                return (
-                  <div className="bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl p-4 text-white shadow">
-                    <div className="flex justify-between mb-2"><span className="font-bold">অগ্রগতি</span><span>{sm}/{st} মাস্টার্ড</span></div>
-                    <div className="w-full h-2 bg-white/20 rounded-full"><div className="h-full bg-white rounded-full" style={{ width: `${sa}%` }} /></div>
-                  </div>
-                );
-              })()}
-              {SUBJECT_TOPICS[subject] && (
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {Object.entries(SUBJECT_TOPICS[subject]).map(([st, tops]) => (
-                    <div key={st} className="bg-white rounded-xl border border-amber-200 p-3">
-                      <h3 className="font-bold text-sm text-amber-800 mb-2">{st}</h3>
-                      {tops.map(t => {
-                        const s = getSubTopicStats(subject, st);
-                        return (
-                          <div key={t} className="flex items-center gap-2 mb-1">
-                            <span className="w-32 text-xs truncate">{t}</span>
-                            <div className="flex-1 h-1.5 bg-gray-200 rounded-full"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${s.accuracy}%` }} /></div>
-                            <span className="text-xs w-10 text-right">{s.questions > 0 ? `${s.accuracy}%` : "—"}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
-              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {SUBJECTS[subject].topics.map(t => {
                   const o = all.find(x => x.topic === t); const has = o && o.totalQuestions > 0;
@@ -189,10 +129,7 @@ export default function Home() {
 
           {topic && (
             <div className="space-y-6">
-              <div className="flex justify-between">
-                <button onClick={() => { setSubject(null); setTopic(null); }} className="text-amber-700 text-sm underline">← বিষয় পরিবর্তন</button>
-                <span className="text-sm font-medium bg-amber-100 px-3 py-1 rounded-full">{topic}</span>
-              </div>
+              <div className="flex justify-between"><button onClick={() => { setSubject(null); setTopic(null); }} className="text-amber-700 text-sm underline">← বিষয় পরিবর্তন</button><span className="text-sm font-medium bg-amber-100 px-3 py-1 rounded-full">{topic}</span></div>
               <div className="flex gap-2">
                 <button onClick={() => setMcqMode("ai")} className={`px-4 py-2 rounded-xl text-sm font-semibold ${mcqMode === "ai" ? "bg-amber-500 text-white" : "bg-white border border-amber-200"}`}>🤖 AI MCQ</button>
                 <button onClick={() => setMcqMode("local")} className={`px-4 py-2 rounded-xl text-sm font-semibold ${mcqMode === "local" ? "bg-amber-500 text-white" : "bg-white border border-amber-200"}`}>📚 Local MCQ</button>
