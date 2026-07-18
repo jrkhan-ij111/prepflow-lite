@@ -1,0 +1,72 @@
+[
+  {
+    "id": "pc1",
+    "question": "5P3 এর মান কত?",
+    "options": ["10", "20", "60", "120"],
+    "answer": 2,
+    "explanation": "5P3 = 5×4×3 = 60।"
+  },
+  {
+    "id": "pc2",
+    "question": "5C2 এর মান কত?",
+    "options": ["5", "10", "15", "20"],
+    "answer": 1,
+    "explanation": "5C2 = (5×4)/(2×1) = 10।"
+  },
+  {
+    "id": "pc3",
+    "question": "0! এর মান কত?",
+    "options": ["0", "1", "অসংজ্ঞায়িত", "∞"],
+    "answer": 1,
+    "explanation": "0! = 1।"
+  },
+  {
+    "id": "pc4",
+    "question": "nPn = কত?",
+    "options": ["n!", "1", "0", "n"],
+    "answer": 0,
+    "explanation": "nPn = n!।"
+  },
+  {
+    "id": "pc5",
+    "question": "'BOOK' কত প্রকারে সাজানো যায়?",
+    "options": ["12", "18", "24", "36"],
+    "answer": 0,
+    "explanation": "4!/2! = 12।"
+  },
+  {
+    "id": "pc6",
+    "question": "7C3 এর মান?",
+    "options": ["21", "35", "42", "210"],
+    "answer": 1,
+    "explanation": "7C3 = 35।"
+  },
+  {
+    "id": "pc7",
+    "question": "nCr = nC(n-r) কী সূত্র?",
+    "options": ["প্যাসকেল", "সাম্য", "প্রতিসাম্য", "বিন্যাস"],
+    "answer": 2,
+    "explanation": "সমাবেশের প্রতিসাম্য সূত্র।"
+  },
+  {
+    "id": "pc8",
+    "question": "10C0+...+10C10 = ?",
+    "options": ["512", "1024", "2048", "100"],
+    "answer": 1,
+    "explanation": "2^10 = 1024।"
+  },
+  {
+    "id": "pc9",
+    "question": "6C3 এর মান?",
+    "options": ["10", "15", "20", "30"],
+    "answer": 2,
+    "explanation": "6C3 = 20।"
+  },
+  {
+    "id": "pc10",
+    "question": "10P2 এর মান?",
+    "options": ["45", "90", "100", "20"],
+    "answer": 1,
+    "explanation": "10×9 = 90।"
+  }
+]
