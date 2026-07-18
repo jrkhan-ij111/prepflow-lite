@@ -16,29 +16,55 @@ interface TopicOverview {
   lastPracticed: string | null;
 }
 
-// ---------- Subjects & Sub-topics ----------
+// ---------- Subjects ----------
 const SUBJECTS: Record<string, string[]> = {
   "বাংলা": ["বাংলা ব্যাকরণ", "বাংলা সাহিত্য"],
   "ইংরেজী": ["English Grammar", "English Literature"],
-  "গণিত": ["পাটিগণিত", "বীজগণিত", "জ্যামিতি", "ত্রিকোণমিতি", "পরিসংখ্যান"],
-  "সাধারণ জ্ঞান": ["বাংলাদেশ", "আন্তর্জাতিক", "সংবিধান", "ভূগোল", "ইতিহাস", "অর্থনীতি"],
-  "বিজ্ঞান": ["পদার্থবিজ্ঞান", "রসায়নবিজ্ঞান", "জীববিজ্ঞান", "পরিবেশ"],
-  "আইসিটি": ["কম্পিউটার", "তথ্য প্রযুক্তি", "ইন্টারনেট", "প্রোগ্রামিং"],
+  "গণিত": ["পাটিগণিত", "বীজগণিত", "জ্যামিতি", "ত্রিকোণমিতি", "মানসিক দক্ষতা"],
+  "সাধারণ জ্ঞান": ["বাংলাদেশ বিষয়াবলি", "আন্তর্জাতিক বিষয়াবলি"],
+  "বিজ্ঞান": ["সাধারণ বিজ্ঞান", "কম্পিউটার ও আইসিটি"],
+  "ভূগোল ও পরিবেশ": ["ভূগোল", "পরিবেশ ও দুর্যোগ"],
+  "নৈতিকতা ও সুশাসন": ["নৈতিকতা", "মূল্যবোধ", "সুশাসন"],
+  "ব্যাংকিং ও অর্থনীতি": ["ব্যাংকিং", "অর্থনীতি", "বিশ্লেষণাত্মক ক্ষমতা"],
 };
 
-// ---------- Specific Topic Lists ----------
+// ---------- Topic Lists ----------
 const SUBJECT_TOPICS: Record<string, Record<string, string[]>> = {
   "বাংলা": {
-    "বাংলা ব্যাকরণ": [
-      "ভাষা, বর্ণ, শব্দ, বাক্য", "উপসর্গ", "অনুসর্গ", "সমাস", "কারক ও বিভক্তি",
-      "প্রকৃতি ও প্রত্যয়", "সন্ধি", "বিপরীত শব্দ", "সমার্থক শব্দ", "বাগধারা",
-      "পারিভাষিক শব্দ", "বানান ও বাক্যশুদ্ধি",
-    ],
-    "বাংলা সাহিত্য": [
-      "প্রাচীন ও মধ্যযুগ (চর্যাপদ, শ্রীকৃষ্ণকীর্তন, মঙ্গলকাব্য, বৈষ্ণব পদাবলি)",
-      "ঈশ্বরচন্দ্র বিদ্যাসাগর", "বঙ্কিমচন্দ্র চট্টোপাধ্যায়", "মাইকেল মধুসূদন দত্ত",
-      "রবীন্দ্রনাথ ঠাকুর", "কাজী নজরুল ইসলাম", "মুনীর চৌধুরী ও অন্যান্য আধুনিক সাহিত্যিক",
-    ],
+    "বাংলা ব্যাকরণ": ["ভাষা, বর্ণ, শব্দ, বাক্য", "উপসর্গ", "অনুসর্গ", "সমাস", "কারক ও বিভক্তি", "প্রকৃতি ও প্রত্যয়", "সন্ধি", "বিপরীত শব্দ", "সমার্থক শব্দ", "বাগধারা", "পারিভাষিক শব্দ", "বানান ও বাক্যশুদ্ধি"],
+    "বাংলা সাহিত্য": ["প্রাচীন ও মধ্যযুগ (চর্যাপদ, শ্রীকৃষ্ণকীর্তন, মঙ্গলকাব্য, বৈষ্ণব পদাবলি)", "ঈশ্বরচন্দ্র বিদ্যাসাগর", "বঙ্কিমচন্দ্র চট্টোপাধ্যায়", "মাইকেল মধুসূদন দত্ত", "রবীন্দ্রনাথ ঠাকুর", "কাজী নজরুল ইসলাম", "মুনীর চৌধুরী ও অন্যান্য"],
+  },
+  "ইংরেজী": {
+    "English Grammar": ["Parts of Speech", "Tense", "Voice", "Narration", "Clause", "Sentence", "Degree", "Preposition", "Determiners", "Idioms and Phrases", "Synonyms & Antonyms", "Spelling", "Analogy", "One Word Substitution", "Reading Comprehension"],
+    "English Literature": ["Figures of Speech", "Literary Terms", "Shakespeare", "John Milton", "William Wordsworth", "P.B. Shelley"],
+  },
+  "গণিত": {
+    "পাটিগণিত": ["বাস্তব সংখ্যা", "লসাগু ও গসাগু", "শতকরা", "লাভ ও ক্ষতি", "অনুপাত ও সমানুপাত", "ঐকিক নিয়ম", "সুদকষা", "সময় ও কাজ", "নল ও চৌবাচ্চা"],
+    "বীজগণিত": ["বীজগণিতীয় সূত্রাবলি", "উৎপাদক", "সূচক ও লগারিদম", "সমীকরণ", "অসমতা", "ধারা"],
+    "জ্যামিতি": ["রেখা, কোণ", "ত্রিভুজ", "চতুর্ভুজ", "বৃত্ত", "পিথাগোরাসের উপপাদ্য", "পরিমিতি"],
+    "ত্রিকোণমিতি": ["ত্রিকোণমিতিক অনুপাত", "উচ্চতা ও দূরত্ব"],
+    "মানসিক দক্ষতা": ["গাণিতিক সমস্যা", "সম্পর্ক নির্ণয়", "শ্রেণিকরণ", "সাংকেতিকরণ", "দিক নির্ণয়", "ত্রিমাত্রিক বুদ্ধিমত্তা"],
+  },
+  "সাধারণ জ্ঞান": {
+    "বাংলাদেশ বিষয়াবলি": ["ইতিহাস (প্রাচীন-১৯৭১)", "মুক্তিযুদ্ধ", "সংবিধান", "অর্থনীতি", "ভৌগোলিক অবস্থান", "শিল্প ও বাণিজ্য", "সরকার ব্যবস্থা", "অর্জন ও পুরস্কার"],
+    "আন্তর্জাতিক বিষয়াবলি": ["বৈশ্বিক ইতিহাস", "মহাদেশ ও দেশ পরিচিতি", "জাতিসংঘ", "সার্ক", "আসিয়ান", "ওআইসি", "ভূ-রাজনীতি", "পুরস্কার ও সম্মাননা"],
+  },
+  "বিজ্ঞান": {
+    "সাধারণ বিজ্ঞান": ["ভৌত বিজ্ঞান (আলো, শব্দ, চুম্বকত্ব, বিদ্যুৎ)", "জীববিজ্ঞান (কোষ, টিস্যু, মানবদেহ)", "রোগব্যাধি", "ভিটামিন", "আধুনিক বিজ্ঞান"],
+    "কম্পিউটার ও আইসিটি": ["কম্পিউটার মৌলিক ধারণা", "হার্ডওয়্যার ও সফটওয়্যার", "অপারেটিং সিস্টেম", "এমএস অফিস", "নেটওয়ার্কিং ও ইন্টারনেট", "ডাটাবেজ", "ই-কমার্স", "সাইবার নিরাপত্তা"],
+  },
+  "ভূগোল ও পরিবেশ": {
+    "ভূগোল": ["বাংলাদেশের ভৌগোলিক অবস্থান", "বিশ্বের ভৌগোলিক অবস্থান", "ভূমিরূপ", "মৃত্তিকা", "জলবায়ু", "প্রাকৃতিক সম্পদ"],
+    "পরিবেশ ও দুর্যোগ": ["পরিবেশের ভারসাম্য", "বায়ুমণ্ডল", "জীববৈচিত্র্য", "দুর্যোগের কারণ", "দুর্যোগ ব্যবস্থাপনা", "জলবায়ু পরিবর্তন"],
+  },
+  "নৈতিকতা ও সুশাসন": {
+    "নৈতিকতা": ["নৈতিকতার ধারণা", "মূল্যবোধের সংজ্ঞা"],
+    "সুশাসন": ["সুশাসনের সংজ্ঞা", "রাষ্ট্র ও সমাজে প্রভাব", "দুর্নীতি প্রতিরোধ", "নাগরিকের দায়িত্ব"],
+  },
+  "ব্যাংকিং ও অর্থনীতি": {
+    "ব্যাংকিং": ["ব্যাংকিং পরিভাষা", "বাংলাদেশ ব্যাংক", "বাণিজ্যিক ব্যাংক", "নেগোশিয়েবল ইনস্ট্রুমেন্ট অ্যাক্ট"],
+    "অর্থনীতি": ["সামষ্টিক অর্থনীতি", "ব্যষ্টিক অর্থনীতি", "মুদ্রাস্ফীতি", "বাজেট", "জিডিপি", "জিএনপি", "আন্তর্জাতিক বাণিজ্য"],
+    "বিশ্লেষণাত্মক ক্ষমতা": ["Data Interpretation", "Puzzle Test", "Seating Arrangement"],
   },
 };
 
@@ -54,19 +80,9 @@ function getTopicOverview(topic: string): TopicOverview {
   const stats = safeGet(statsKey);
   const bank = safeGet(bankKey);
   const today = new Date().toISOString().slice(0, 10);
-
   let extQuestions = 0, extCorrect = 0, extToday = 0;
-  try {
-    const ext = JSON.parse(localStorage.getItem("prepflow_external") || "[]");
-    ext.forEach((s: any) => {
-      if (s.topic === topic) { extQuestions += s.questions || 0; extCorrect += Math.round((s.questions || 0) * 0.7); if (s.date === today) extToday += s.questions || 0; }
-    });
-  } catch {}
-
-  if (!stats) {
-    return { topic, accuracy: 0, totalQuestions: extQuestions, masteredQuestions: 0, learningQuestions: 0, newQuestions: (bank?.questions?.length || 0) + extQuestions, todayCount: extToday, lastPracticed: null };
-  }
-
+  try { const ext = JSON.parse(localStorage.getItem("prepflow_external") || "[]"); ext.forEach((s: any) => { if (s.topic === topic) { extQuestions += s.questions || 0; extCorrect += Math.round((s.questions || 0) * 0.7); if (s.date === today) extToday += s.questions || 0; } }); } catch {}
+  if (!stats) return { topic, accuracy: 0, totalQuestions: extQuestions, masteredQuestions: 0, learningQuestions: 0, newQuestions: (bank?.questions?.length || 0) + extQuestions, todayCount: extToday, lastPracticed: null };
   const total = Object.keys(stats.perQuestion || {}).length + extQuestions;
   const mastered = Object.values(stats.perQuestion || {}).filter((q: any) => q.attempts >= 3 && (q.correct / q.attempts) >= 0.8).length;
   const learning = Object.values(stats.perQuestion || {}).filter((q: any) => q.attempts > 0 && (q.attempts < 3 || (q.correct / q.attempts) < 0.8)).length;
@@ -75,7 +91,6 @@ function getTopicOverview(topic: string): TopicOverview {
   const acc = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
   const todayCount = (stats.daily?.[today]?.attempted || 0) + extToday;
   const dates = Object.keys(stats.daily || {}).sort().reverse();
-
   return { topic, accuracy: acc, totalQuestions: total, masteredQuestions: mastered, learningQuestions: learning, newQuestions: Math.max(0, total - mastered - learning), todayCount, lastPracticed: dates.length > 0 ? dates[0] : null };
 }
 
@@ -86,22 +101,14 @@ function getAllOverviews(): TopicOverview[] {
   return arr;
 }
 
-// Aggregate stats for specific topic (e.g., "বাংলা ব্যাকরণ → কারক")
-function getSubTopicStats(subject: string, subTopic: string, specificTopic: string): { questions: number; accuracy: number } {
+function getSubTopicStats(subject: string, subTopic: string): { questions: number; accuracy: number } {
   let questions = 0, correct = 0;
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (!key || !key.startsWith(`prepflow_stats_${subject}_${subTopic}`)) continue;
     const raw = safeGet(key);
     if (!raw) continue;
-    try {
-      const stats = raw;
-      // aggregate perQuestion stats
-      Object.entries(stats.perQuestion || {}).forEach(([qId, qs]: any) => {
-        questions += qs.attempts || 0;
-        correct += qs.correct || 0;
-      });
-    } catch {}
+    try { Object.entries(raw.perQuestion || {}).forEach(([_, qs]: any) => { questions += qs.attempts || 0; correct += qs.correct || 0; }); } catch {}
   }
   const accuracy = questions > 0 ? Math.round((correct / questions) * 100) : 0;
   return { questions, accuracy };
@@ -127,8 +134,7 @@ export default function Home() {
 
   const last30 = Array.from({ length: 30 }, (_, i) => {
     const d = new Date(); d.setDate(d.getDate() - i); const ds = d.toISOString().slice(0, 10);
-    let c = 0;
-    allOverview.forEach(o => { const s = safeGet(`prepflow_stats_${o.topic}`); if (s?.daily?.[ds]) c += s.daily[ds].attempted; });
+    let c = 0; allOverview.forEach(o => { const s = safeGet(`prepflow_stats_${o.topic}`); if (s?.daily?.[ds]) c += s.daily[ds].attempted; });
     return { label: `${d.getDate()}/${d.getMonth() + 1}`, count: c };
   }).reverse();
   const maxD = Math.max(1, ...last30.map(d => d.count));
@@ -153,7 +159,7 @@ export default function Home() {
       {tab === "practice" && (
         <div>
           {!subject && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {Object.keys(SUBJECTS).map(s => {
                 const st = SUBJECTS[s]; const so = allOverview.filter(o => st.includes(o.topic));
                 const sa = so.length > 0 ? Math.round(so.reduce((a, o) => a + o.accuracy, 0) / so.length) : 0;
@@ -161,7 +167,7 @@ export default function Home() {
                 const smastered = so.reduce((a, o) => a + o.masteredQuestions, 0);
                 return (
                   <button key={s} onClick={() => setSubject(s)} className="bg-white rounded-2xl shadow-sm border border-amber-200 p-5 hover:shadow-md transition text-center">
-                    <span className="text-2xl mb-2 block">{s === "বাংলা" ? "🇧🇩" : s === "ইংরেজী" ? "🇬🇧" : s === "গণিত" ? "🔢" : s === "সাধারণ জ্ঞান" ? "🌍" : s === "বিজ্ঞান" ? "🔬" : "💻"}</span>
+                    <span className="text-2xl mb-2 block">{s === "বাংলা" ? "🇧🇩" : s === "ইংরেজী" ? "🇬🇧" : s === "গণিত" ? "🔢" : s === "সাধারণ জ্ঞান" ? "🌍" : s === "বিজ্ঞান" ? "🔬" : s === "ভূগোল ও পরিবেশ" ? "🌏" : s === "নৈতিকতা ও সুশাসন" ? "⚖️" : "💰"}</span>
                     <span className="font-semibold text-amber-900 text-sm">{s}</span>
                     {stotal > 0 && <div className="mt-2"><div className="w-full h-1.5 bg-gray-200 rounded-full"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} /></div><div className="flex justify-between text-xs text-gray-500 mt-1"><span>{sa}%</span><span>{smastered}/{stotal}</span></div></div>}
                     {stotal === 0 && <p className="text-xs text-gray-400 mt-1">শুরু করুন</p>}
@@ -176,7 +182,6 @@ export default function Home() {
               <button onClick={() => setSubject(null)} className="text-amber-700 text-sm underline">← বিষয় পরিবর্তন</button>
               <h2 className="text-xl font-bold text-amber-800">{subject}</h2>
 
-              {/* Subject Progress Card */}
               {(() => {
                 const sa = subjectOverviews.length > 0 ? Math.round(subjectOverviews.reduce((a, o) => a + o.accuracy, 0) / subjectOverviews.length) : 0;
                 const stotal = subjectOverviews.reduce((a, o) => a + o.totalQuestions, 0);
@@ -191,23 +196,22 @@ export default function Home() {
                 );
               })()}
 
-              {/* বাংলার জন্য বিশেষ টপিক-ভিত্তিক প্রগ্রেস */}
-              {subject === "বাংলা" && SUBJECT_TOPICS["বাংলা"] && (
+              {SUBJECT_TOPICS[subject] && (
                 <div className="space-y-4">
-                  {Object.entries(SUBJECT_TOPICS["বাংলা"]).map(([subTopic, topics]) => (
+                  {Object.entries(SUBJECT_TOPICS[subject]).map(([subTopic, topics]) => (
                     <div key={subTopic} className="bg-white rounded-2xl shadow-sm border border-amber-200 p-4">
                       <h3 className="font-bold text-amber-800 mb-3">{subTopic}</h3>
                       <div className="space-y-2">
                         {topics.map(t => {
-                          const stats = getSubTopicStats("বাংলা", subTopic, t);
+                          const stats = getSubTopicStats(subject, subTopic);
                           return (
                             <div key={t} className="flex items-center gap-3">
-                              <span className="w-32 text-xs truncate">{t}</span>
+                              <span className="w-36 text-xs truncate">{t}</span>
                               <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                                 <div className="h-full bg-amber-500 rounded-full" style={{ width: `${stats.accuracy}%` }} />
                               </div>
                               <span className="text-xs text-gray-500 w-16 text-right">
-                                {stats.questions > 0 ? `${stats.accuracy}% (${stats.questions})` : "—"}
+                                {stats.questions > 0 ? `${stats.accuracy}%` : "—"}
                               </span>
                             </div>
                           );
@@ -218,7 +222,6 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Subject Topic Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {SUBJECTS[subject].map(t => {
                   const o = allOverview.find(x => x.topic === t); const has = o && o.totalQuestions > 0;
