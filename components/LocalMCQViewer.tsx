@@ -13,88 +13,105 @@ interface MCQ {
 interface Props { topic: string; }
 
 const MCQ_BANK: Record<string, MCQ[]> = {
-  // ========== বাংলা ব্যাকরণ ==========
   "বাংলা ব্যাকরণ": [
-    { id: "bg1", question: "'উপশহর' শব্দে 'উপ' উপসর্গটি কোন অর্থে ব্যবহৃত হয়েছে?", options: ["ক্ষুদ্র অর্থে", "সাদৃশ্য অর্থে", "সমীপ্য অর্থে", "বিরোধ অর্থে"], answer: 1, explanation: "শহরের সদৃশ = উপশহর। সাদৃশ্য অর্থে ব্যবহৃত।" },
-    { id: "bg2", question: "'যথারীতি' শব্দে 'যথা' উপসর্গটি কোন অর্থ প্রকাশ করে?", options: ["সাদৃশ্য", "অতিক্রান্ত", "অনতিক্রম্যতা", "বিরোধ"], answer: 2, explanation: "রীতিকে অতিক্রম না করে = যথারীতি। অনতিক্রম্যতা অর্থে।" },
-    { id: "bg3", question: "'উচ্ছৃঙ্খল' শব্দে 'উৎ' উপসর্গটি কোন অর্থে ব্যবহৃত?", options: ["ঈষৎ অর্থে", "অতিক্রান্ত অর্থে", "ক্ষুদ্র অর্থে", "পূর্ণ অর্থে"], answer: 1, explanation: "শৃঙ্খলাকে অতিক্রান্ত = উচ্ছৃঙ্খল।" },
-    { id: "bg4", question: "'প্রতিবাদ' শব্দে 'প্রতি' উপসর্গটি কোন অর্থে ব্যবহৃত?", options: ["পশ্চাৎ অর্থে", "প্রতিনিধি অর্থে", "বিরোধ অর্থে", "সাদৃশ্য অর্থে"], answer: 2, explanation: "বিরুদ্ধ বাদ = প্রতিবাদ। বিরোধ অর্থে।" },
-    { id: "bg5", question: "সমাস কাকে বলে?", options: ["দুটি পদের মিলন", "পরস্পর সম্পর্কযুক্ত দুই বা ততোধিক পদের এক পদে পরিণত হওয়া", "শব্দের বিভক্তি যোগ", "উপসর্গ যোগ"], answer: 1, explanation: "পরস্পর সম্পর্কযুক্ত দুই বা ততোধিক পদ এক পদে পরিণত হওয়াকে সমাস বলে।" },
-    { id: "bg6", question: "প্রাদি সমাস কাকে বলে?", options: ["যে সমাসে ব্যাসবাক্যের প্রয়োজন হয় না", "প্র, প্রতি, অনু প্রভৃতি অব্যয়ের সঙ্গে কৃৎ প্রত্যয় সাধিত বিশেষ্যের সমাস", "নিত্য সমাসবদ্ধ সমাস", "উপমান-উপমেয় সমাস"], answer: 1, explanation: "প্র, প্রতি, অনু + কৃৎ প্রত্যয় সাধিত বিশেষ্য = প্রাদি সমাস।" },
-    { id: "bg7", question: "নিত্যসমাসের বৈশিষ্ট্য কী?", options: ["উপসর্গ যুক্ত", "উপমান-উপমেয়", "সমস্যমান পদ নিত্য সমাসবদ্ধ, ব্যাসবাক্য লাগে না", "বিভক্তি লোপ পায় না"], answer: 2, explanation: "পদগুলো নিত্য সমাসবদ্ধ থাকে, ব্যাসবাক্যের দরকার হয় না।" },
-    { id: "bg8", question: "'আরক্তিম' শব্দে 'আ' উপসর্গটি কোন অর্থ প্রকাশ করে?", options: ["পূর্ণ অর্থে", "ক্ষুদ্র অর্থে", "ঈষৎ অর্থে", "বিরোধ অর্থে"], answer: 2, explanation: "ঈষৎ রক্তিম = আরক্তিম।" },
-    { id: "bg9", question: "'অনুধাবন' শব্দে 'অনু' উপসর্গটি কী অর্থ প্রকাশ করে?", options: ["বিরোধ", "সাদৃশ্য", "পশ্চাৎ", "ক্ষুদ্র"], answer: 2, explanation: "পশ্চাৎ ধাবন = অনুধাবন।" },
-    { id: "bg10", question: "'পরোক্ষ' শব্দে 'পর' উপসর্গটি কী অর্থে ব্যবহৃত?", options: ["সমীপ্য", "দূরবর্তী", "ঈষৎ", "ক্ষুদ্র"], answer: 1, explanation: "অক্ষির অগোচরে = পরোক্ষ। দূরবর্তী অর্থে।" },
+    { id: "bg1", question: "'উপশহর' শব্দে 'উপ' উপসর্গটি কোন অর্থে ব্যবহৃত হয়েছে?", options: ["ক্ষুদ্র", "সাদৃশ্য", "সমীপ্য", "বিরোধ"], answer: 1, explanation: "শহরের সদৃশ = উপশহর।" },
+    { id: "bg2", question: "'যথারীতি' শব্দে 'যথা' উপসর্গটি কোন অর্থ প্রকাশ করে?", options: ["সাদৃশ্য", "অতিক্রান্ত", "অনতিক্রম্যতা", "বিরোধ"], answer: 2, explanation: "রীতিকে অতিক্রম না করে = যথারীতি।" },
+    { id: "bg3", question: "সমাস কাকে বলে?", options: ["দুটি পদের মিলন", "সম্পর্কযুক্ত দুই বা ততোধিক পদের এক পদে পরিণত হওয়া", "শব্দের বিভক্তি যোগ", "উপসর্গ যোগ"], answer: 1, explanation: "পরস্পর সম্পর্কযুক্ত দুই বা ততোধিক পদ এক পদে পরিণত হওয়াকে সমাস বলে।" },
+    { id: "bg4", question: "প্রাদি সমাস কাকে বলে?", options: ["ব্যাসবাক্য ছাড়া", "প্র, প্রতি, অনু + কৃৎ প্রত্যয়", "নিত্য সমাসবদ্ধ", "উপমান-উপমেয়"], answer: 1, explanation: "প্র, প্রতি, অনু অব্যয় + কৃৎ প্রত্যয় সাধিত বিশেষ্য = প্রাদি সমাস।" },
+    { id: "bg5", question: "নিত্যসমাসের বৈশিষ্ট্য?", options: ["উপসর্গ যুক্ত", "উপমান-উপমেয়", "নিত্য সমাসবদ্ধ, ব্যাসবাক্য লাগে না", "বিভক্তি লোপ পায় না"], answer: 2, explanation: "পদগুলো নিত্য সমাসবদ্ধ থাকে।" },
+    { id: "bg6", question: "'আরক্তিম' শব্দে 'আ' উপসর্গটি কোন অর্থ?", options: ["পূর্ণ", "ক্ষুদ্র", "ঈষৎ", "বিরোধ"], answer: 2, explanation: "ঈষৎ রক্তিম = আরক্তিম।" },
+    { id: "bg7", question: "'প্রতিবাদ' শব্দে 'প্রতি' উপসর্গটি কোন অর্থে?", options: ["পশ্চাৎ", "প্রতিনিধি", "বিরোধ", "সাদৃশ্য"], answer: 2, explanation: "বিরুদ্ধ বাদ = প্রতিবাদ।" },
+    { id: "bg8", question: "'উচ্ছৃঙ্খল' শব্দে 'উৎ' উপসর্গটি কোন অর্থে?", options: ["ঈষৎ", "অতিক্রান্ত", "ক্ষুদ্র", "পূর্ণ"], answer: 1, explanation: "শৃঙ্খলাকে অতিক্রান্ত = উচ্ছৃঙ্খল।" },
+    { id: "bg9", question: "'অনুধাবন' শব্দে 'অনু' উপসর্গের অর্থ?", options: ["বিরোধ", "সাদৃশ্য", "পশ্চাৎ", "ক্ষুদ্র"], answer: 2, explanation: "পশ্চাৎ ধাবন = অনুধাবন।" },
+    { id: "bg10", question: "'পরোক্ষ' শব্দে 'পর' উপসর্গটি কী অর্থে?", options: ["সমীপ্য", "দূরবর্তী", "ঈষৎ", "ক্ষুদ্র"], answer: 1, explanation: "অক্ষির অগোচরে = পরোক্ষ।" },
+    { id: "bg11", question: "'প্রবচন' শব্দের ব্যাসবাক্য?", options: ["প্রকৃষ্ট যে বচন", "প্রতি যে বচন", "প্রকৃষ্ট রূপে বচন", "প্রতি রূপে বচন"], answer: 0, explanation: "প্র (প্রকৃষ্ট) যে বচন = প্রবচন।" },
+    { id: "bg12", question: "'গ্রামান্তর' শব্দের ব্যাসবাক্য?", options: ["গ্রামের অন্য", "গ্রামের মধ্যে", "অন্য গ্রাম", "গ্রামের বাইরে"], answer: 2, explanation: "অন্য গ্রাম = গ্রামান্তর। নিত্যসমাস।" },
+    { id: "bg13", question: "'প্রতিপক্ষ' শব্দে 'প্রতি' উপসর্গের অর্থ?", options: ["প্রতিনিধি", "বিরোধ", "প্রতিদ্বন্দ্বী", "পশ্চাৎ"], answer: 2, explanation: "প্রতিদ্বন্দ্বী অর্থে 'প্রতি'।" },
+    { id: "bg14", question: "'প্রভাত' শব্দটি কোন সমাস?", options: ["নিত্যসমাস", "উপপদ", "প্রাদি সমাস", "অলুক"], answer: 2, explanation: "প্র (প্রকৃষ্ট রূপে) ভাত = প্রভাত। প্রাদি সমাস।" },
+    { id: "bg15", question: "'কালসাপ' শব্দটি কোন সমাস?", options: ["প্রাদি", "নিত্যসমাস", "বহুব্রীহি", "কর্মধারয়"], answer: 1, explanation: "কাল (যম) তুল্য সাপ = কালসাপ। নিত্যসমাস।" },
   ],
 
-  // ========== বাংলা সাহিত্য ==========
   "বাংলা সাহিত্য": [
-    { id: "bs1", question: "কাজী নজরুল ইসলামের জন্মস্থান কোথায়?", options: ["ঢাকা", "চুরুলিয়া, বর্ধমান", "কলকাতা", "কুমিল্লা"], answer: 1, explanation: "পশ্চিমবঙ্গের বর্ধমান জেলার চুরুলিয়ায় জন্ম।" },
-    { id: "bs2", question: "নজরুলের প্রথম প্রকাশিত কবিতা কোনটি?", options: ["বিদ্রোহী", "আনন্দময়ীর আগমনে", "মুক্তি", "প্রলয়শিখা"], answer: 2, explanation: "১৯১৯ সালে 'মুক্তি' বঙ্গীয় মুসলিম সাহিত্য পত্রিকায় প্রকাশিত।" },
-    { id: "bs3", question: "নজরুলের প্রথম উপন্যাস কোনটি?", options: ["মৃত্যুক্ষুধা", "কুহেলিকা", "বাঁধনহারা", "ঝিলিমিলি"], answer: 2, explanation: "'বাঁধনহারা' (১৯২৭) প্রথম উপন্যাস ও প্রথম পত্রোপন্যাস।" },
-    { id: "bs4", question: "জীবনানন্দ দাশের জন্মস্থান?", options: ["কলকাতা", "ঢাকা", "বরিশাল", "খুলনা"], answer: 2, explanation: "১৮৯৯ সালের ১৭ ফেব্রুয়ারি বরিশালে জন্ম।" },
-    { id: "bs5", question: "'আবার আসিব ফিরে ধানসিঁড়িটির তীরে' — কার লেখা?", options: ["রবীন্দ্রনাথ", "নজরুল", "জীবনানন্দ দাশ", "জসীমউদ্দীন"], answer: 2, explanation: "জীবনানন্দ দাশের বিখ্যাত কবিতা।" },
-    { id: "bs6", question: "জীবনানন্দ দাশের প্রথম কাব্যগ্রন্থ?", options: ["ঝরা পালক", "ধূসর পাণ্ডুলিপি", "বনলতা সেন", "রূপসী বাংলা"], answer: 0, explanation: "'ঝরা পালক' (১৯২৭) প্রথম প্রকাশিত কাব্যগ্রন্থ।" },
-    { id: "bs7", question: "নজরুলের শৈশবের ডাক নাম?", options: ["খোকা", "দুখু মিয়া", "নুরু", "বুলবুল"], answer: 1, explanation: "দারিদ্র্যের কারণে 'দুখু মিয়া' নাম রাখা হয়েছিল।" },
-    { id: "bs8", question: "রবীন্দ্রনাথ নজরুলকে কোন নাটক উৎসর্গ করেন?", options: ["চিত্রাঙ্গদা", "বসন্ত", "শ্যামা", "চণ্ডালিকা"], answer: 1, explanation: "নজরুল জেলে থাকাকালীন 'বসন্ত' উৎসর্গ করেন।" },
-    { id: "bs9", question: "জীবনানন্দের মৃত্যু হয় কীভাবে?", options: ["হৃদরোগে", "ক্যান্সারে", "ট্রাম দুর্ঘটনায়", "আত্মহত্যায়"], answer: 2, explanation: "১৯৫৪ সালে কলকাতায় ট্রাম দুর্ঘটনায় মৃত্যু।" },
-    { id: "bs10", question: "'বনলতা সেন' কবিতাটি কোন কাব্যগ্রন্থের?", options: ["ধূসর পাণ্ডুলিপি", "বনলতা সেন", "মহাপৃথিবী", "সাতটি তারার তিমির"], answer: 1, explanation: "১৯৪২ সালে প্রকাশিত 'বনলতা সেন' কাব্যগ্রন্থের অন্তর্গত।" },
+    { id: "bs1", question: "কাজী নজরুল ইসলামের জন্মস্থান?", options: ["ঢাকা", "চুরুলিয়া, বর্ধমান", "কলকাতা", "কুমিল্লা"], answer: 1, explanation: "পশ্চিমবঙ্গের বর্ধমান জেলার চুরুলিয়ায় জন্ম।" },
+    { id: "bs2", question: "নজরুলের প্রথম প্রকাশিত কবিতা?", options: ["বিদ্রোহী", "আনন্দময়ীর আগমনে", "মুক্তি", "প্রলয়শিখা"], answer: 2, explanation: "১৯১৯ সালে 'মুক্তি' প্রকাশিত।" },
+    { id: "bs3", question: "নজরুলের প্রথম উপন্যাস?", options: ["মৃত্যুক্ষুধা", "কুহেলিকা", "বাঁধনহারা", "ঝিলিমিলি"], answer: 2, explanation: "'বাঁধনহারা' (১৯২৭) প্রথম উপন্যাস ও প্রথম পত্রোপন্যাস।" },
+    { id: "bs4", question: "নজরুলের শৈশবের ডাক নাম?", options: ["খোকা", "দুখু মিয়া", "নুরু", "বুলবুল"], answer: 1, explanation: "দারিদ্র্যের কারণে 'দুখু মিয়া'।" },
+    { id: "bs5", question: "রবীন্দ্রনাথ নজরুলকে কোন নাটক উৎসর্গ করেন?", options: ["চিত্রাঙ্গদা", "বসন্ত", "শ্যামা", "চণ্ডালিকা"], answer: 1, explanation: "নজরুল জেলে থাকাকালীন 'বসন্ত' উৎসর্গ।" },
+    { id: "bs6", question: "নজরুল কত সালে বাংলাদেশের নাগরিকত্ব পান?", options: ["১৯৭২", "১৯৭৪", "১৯৭৫", "১৯৭৬"], answer: 3, explanation: "১৯৭৬ সালের ১৮ ফেব্রুয়ারি।" },
+    { id: "bs7", question: "জীবনানন্দ দাশের জন্মস্থান?", options: ["কলকাতা", "ঢাকা", "বরিশাল", "খুলনা"], answer: 2, explanation: "১৮৯৯ সালের ১৭ ফেব্রুয়ারি বরিশালে জন্ম।" },
+    { id: "bs8", question: "জীবনানন্দ দাশের প্রথম কাব্যগ্রন্থ?", options: ["ঝরা পালক", "ধূসর পাণ্ডুলিপি", "বনলতা সেন", "রূপসী বাংলা"], answer: 0, explanation: "'ঝরা পালক' (১৯২৭)।" },
+    { id: "bs9", question: "'আবার আসিব ফিরে ধানসিঁড়িটির তীরে' — কার লেখা?", options: ["রবীন্দ্রনাথ", "নজরুল", "জীবনানন্দ দাশ", "জসীমউদ্দীন"], answer: 2, explanation: "জীবনানন্দ দাশের বিখ্যাত কবিতা।" },
+    { id: "bs10", question: "'বনলতা সেন' কবিতাটি কোন কাব্যগ্রন্থের?", options: ["ধূসর পাণ্ডুলিপি", "বনলতা সেন", "মহাপৃথিবী", "রূপসী বাংলা"], answer: 1, explanation: "১৯৪২ সালে প্রকাশিত 'বনলতা সেন' কাব্যগ্রন্থের।" },
+    { id: "bs11", question: "নজরুলের প্রথম গল্পগ্রন্থ?", options: ["রিক্তের বেদন", "ব্যথার দান", "কুহেলিকা", "যুগবাণী"], answer: 1, explanation: "'ব্যথার দান' (১৯২২) প্রথম প্রকাশিত গ্রন্থ।" },
+    { id: "bs12", question: "নজরুলের প্রথম নাট্যগ্রন্থ?", options: ["আলেয়া", "মধুমালা", "ঝিলিমিলি", "বিদ্যাপতি"], answer: 2, explanation: "'ঝিলিমিলি' (১৯২৭) প্রথম নাট্যগ্রন্থ।" },
+    { id: "bs13", question: "জীবনানন্দ দাশের মৃত্যু হয় কীভাবে?", options: ["হৃদরোগে", "ক্যান্সারে", "ট্রাম দুর্ঘটনায়", "আত্মহত্যায়"], answer: 2, explanation: "১৯৫৪ সালে কলকাতায় ট্রাম দুর্ঘটনায় মৃত্যু।" },
+    { id: "bs14", question: "জীবনানন্দ দাশকে কী বলা হয়?", options: ["বিদ্রোহী কবি", "রূপসী বাংলার কবি", "পল্লীকবি", "স্বভাবকবি"], answer: 1, explanation: "বাংলার প্রকৃতি অসাধারণভাবে ফুটিয়েছেন বলে।" },
+    { id: "bs15", question: "নজরুল কোন কবিতার জন্য প্রথম কারাবরণ করেন?", options: ["বিদ্রোহী", "প্রলয়শিখা", "আনন্দময়ীর আগমনে", "ভাঙার গান"], answer: 2, explanation: "১৯২২ সালে 'ধূমকেতু'তে 'আনন্দময়ীর আগমনে' প্রকাশের জন্য।" },
   ],
 
-  // ========== English Grammar ==========
   "English Grammar": [
-    { id: "eg1", question: "She _____ to school every day.", options: ["go", "goes", "going", "gone"], answer: 1, explanation: "Third person singular → verb + s/es। She goes to school." },
-    { id: "eg2", question: "The book _____ on the table.", options: ["is", "are", "am", "be"], answer: 0, explanation: "Singular subject 'book' → singular verb 'is'।" },
-    { id: "eg3", question: "Change voice: 'He wrote a letter.'", options: ["A letter was written by him", "A letter is written by him", "A letter was wrote by him", "A letter writes by him"], answer: 0, explanation: "Past indefinite active → passive: object + was/were + V3 + by + subject।" },
-    { id: "eg4", question: "The passive form of 'They are watching TV' is:", options: ["TV is watched", "TV is being watched", "TV was watched", "TV has been watched"], answer: 1, explanation: "Present continuous active → passive: is/are + being + V3।" },
-    { id: "eg5", question: "He said, 'I am busy.' (Narration)", options: ["He said that I am busy", "He said that he was busy", "He said that he is busy", "He said I was busy"], answer: 1, explanation: "Direct → Indirect: present → past, pronoun change।" },
-    { id: "eg6", question: "Which tense is used in 'I have been waiting for hours'?", options: ["Present Perfect", "Present Perfect Continuous", "Past Perfect", "Past Continuous"], answer: 1, explanation: "have been + V-ing = Present Perfect Continuous।" },
-    { id: "eg7", question: "The noun form of 'decide' is:", options: ["decided", "deciding", "decision", "decisive"], answer: 2, explanation: "decision = noun form of decide।" },
-    { id: "eg8", question: "Choose the correct article: 'He is _____ honest man.'", options: ["a", "an", "the", "no article"], answer: 1, explanation: "honest starts with vowel sound → 'an'।" },
-    { id: "eg9", question: "Synonym of 'Abandon':", options: ["Keep", "Forsake", "Hold", "Protect"], answer: 1, explanation: "Abandon = Forsake (ত্যাগ করা, পরিত্যাগ করা)।" },
-    { id: "eg10", question: "Antonym of 'Generous':", options: ["Kind", "Liberal", "Stingy", "Noble"], answer: 2, explanation: "Generous = উদার, Stingy = কৃপণ।" },
+    { id: "eg1", question: "She _____ to school every day.", options: ["go", "goes", "going", "gone"], answer: 1, explanation: "Third person singular → goes।" },
+    { id: "eg2", question: "Change voice: 'He wrote a letter.'", options: ["A letter was written by him", "A letter is written", "A letter was wrote", "A letter writes"], answer: 0, explanation: "Past indefinite passive: was/were + V3।" },
+    { id: "eg3", question: "He said, 'I am busy.' (Narration)", options: ["He said that I am busy", "He said that he was busy", "He said that he is busy", "He said I was busy"], answer: 1, explanation: "Direct → Indirect: present → past।" },
+    { id: "eg4", question: "The passive of 'They are watching TV':", options: ["TV is watched", "TV is being watched", "TV was watched", "TV has been watched"], answer: 1, explanation: "Present continuous passive: is/are + being + V3।" },
+    { id: "eg5", question: "Which tense: 'I have been waiting'?", options: ["Present Perfect", "Present Perfect Continuous", "Past Perfect", "Past Continuous"], answer: 1, explanation: "have been + V-ing = Present Perfect Continuous।" },
+    { id: "eg6", question: "Noun form of 'decide':", options: ["decided", "deciding", "decision", "decisive"], answer: 2, explanation: "decision = noun form।" },
+    { id: "eg7", question: "Article: 'He is _____ honest man.'", options: ["a", "an", "the", "no article"], answer: 1, explanation: "honest vowel sound → 'an'।" },
+    { id: "eg8", question: "Synonym of 'Abandon':", options: ["Keep", "Forsake", "Hold", "Protect"], answer: 1, explanation: "Abandon = Forsake (ত্যাগ করা)।" },
+    { id: "eg9", question: "Antonym of 'Generous':", options: ["Kind", "Liberal", "Stingy", "Noble"], answer: 2, explanation: "Generous (উদার) ≠ Stingy (কৃপণ)।" },
+    { id: "eg10", question: "The book _____ on the table.", options: ["is", "are", "am", "be"], answer: 0, explanation: "Singular subject → is।" },
   ],
 
-  // ========== গণিত (Permutation & Combination) ==========
   "বীজগণিত": [
-    { id: "pc1", question: "5P3 এর মান কত?", options: ["10", "20", "60", "120"], answer: 2, explanation: "5P3 = 5!/(5-3)! = 5×4×3 = 60।" },
-    { id: "pc2", question: "5C2 এর মান কত?", options: ["5", "10", "15", "20"], answer: 1, explanation: "5C2 = 5!/(2!×3!) = (5×4)/(2×1) = 10।" },
-    { id: "pc3", question: "0! এর মান কত?", options: ["0", "1", "অসংজ্ঞায়িত", "∞"], answer: 1, explanation: "গাণিতিক সংজ্ঞা অনুযায়ী 0! = 1।" },
-    { id: "pc4", question: "nPn এর মান কত?", options: ["n!", "1", "0", "n"], answer: 0, explanation: "nPn = n!/(n-n)! = n!/0! = n!।" },
-    { id: "pc5", question: "'BOOK' শব্দটির অক্ষরগুলো কত প্রকারে সাজানো যায়?", options: ["12", "18", "24", "36"], answer: 0, explanation: "O দুইবার → 4!/2! = 24/2 = 12।" },
-    { id: "pc6", question: "7C3 এর মান কত?", options: ["21", "35", "42", "210"], answer: 1, explanation: "7C3 = (7×6×5)/(3×2×1) = 35।" },
-    { id: "pc7", question: "nCr = nC(n-r) — এটি কী নামে পরিচিত?", options: ["প্যাসকেলের সূত্র", "সাম্য সূত্র", "প্রতিসাম্য সূত্র", "বিন্যাস সূত্র"], answer: 2, explanation: "nCr = nC(n-r) সমাবেশের প্রতিসাম্য সূত্র।" },
-    { id: "pc8", question: "10C0 + 10C1 + ... + 10C10 = কত?", options: ["512", "1024", "2048", "100"], answer: 1, explanation: "সমষ্টি = 2^n = 2^10 = 1024।" },
-    { id: "pc9", question: "6C3 এর মান কত?", options: ["10", "15", "20", "30"], answer: 2, explanation: "6C3 = (6×5×4)/(3×2×1) = 20।" },
-    { id: "pc10", question: "10P2 এর মান কত?", options: ["45", "90", "100", "20"], answer: 1, explanation: "10P2 = 10×9 = 90।" },
+    { id: "pc1", question: "5P3 এর মান কত?", options: ["10", "20", "60", "120"], answer: 2, explanation: "5P3 = 5×4×3 = 60।" },
+    { id: "pc2", question: "5C2 এর মান কত?", options: ["5", "10", "15", "20"], answer: 1, explanation: "5C2 = (5×4)/(2×1) = 10।" },
+    { id: "pc3", question: "0! এর মান কত?", options: ["0", "1", "অসংজ্ঞায়িত", "∞"], answer: 1, explanation: "0! = 1।" },
+    { id: "pc4", question: "nPn = কত?", options: ["n!", "1", "0", "n"], answer: 0, explanation: "nPn = n!।" },
+    { id: "pc5", question: "'BOOK' কত প্রকারে সাজানো যায়?", options: ["12", "18", "24", "36"], answer: 0, explanation: "4!/2! = 12।" },
+    { id: "pc6", question: "7C3 এর মান?", options: ["21", "35", "42", "210"], answer: 1, explanation: "7C3 = 35।" },
+    { id: "pc7", question: "nCr = nC(n-r) কী সূত্র?", options: ["প্যাসকেল", "সাম্য", "প্রতিসাম্য", "বিন্যাস"], answer: 2, explanation: "সমাবেশের প্রতিসাম্য সূত্র।" },
+    { id: "pc8", question: "10C0+...+10C10 = ?", options: ["512", "1024", "2048", "100"], answer: 1, explanation: "2^10 = 1024।" },
+    { id: "pc9", question: "6C3 এর মান?", options: ["10", "15", "20", "30"], answer: 2, explanation: "6C3 = 20।" },
+    { id: "pc10", question: "10P2 এর মান?", options: ["45", "90", "100", "20"], answer: 1, explanation: "10×9 = 90।" },
   ],
 
-  // ========== সংবিধান ==========
   "সংবিধান": [
-    { id: "c1", question: "বাংলাদেশের সংবিধান কত সালে কার্যকর হয়?", options: ["১৯৭১", "১৯৭২", "১৯৭৩", "১৯৭৪"], answer: 1, explanation: "১৬ ডিসেম্বর ১৯৭২ থেকে কার্যকর হয়।" },
-    { id: "c2", question: "সংবিধানের প্রস্তাবনায় কয়টি মূলনীতি আছে?", options: ["৩টি", "৪টি", "৫টি", "৬টি"], answer: 1, explanation: "জাতীয়তাবাদ, সমাজতন্ত্র, গণতন্ত্র, ধর্মনিরপেক্ষতা — ৪টি।" },
-    { id: "c3", question: "সংবিধানের কোন অনুচ্ছেদে আইনের দৃষ্টিতে সমতা নিশ্চিত করা হয়েছে?", options: ["২৫", "২৭", "২৯", "৩১"], answer: 1, explanation: "অনুচ্ছেদ ২৭: আইনের দৃষ্টিতে সমতা।" },
-    { id: "c4", question: "বাংলাদেশের রাষ্ট্রপতির মেয়াদকাল কত বছর?", options: ["৪", "৫", "৬", "৭"], answer: 1, explanation: "অনুচ্ছেদ ৫০(২) অনুযায়ী ৫ বছর।" },
-    { id: "c5", question: "জাতীয় সংসদের মেয়াদকাল কত বছর?", options: ["৪", "৫", "৬", "৩"], answer: 1, explanation: "অনুচ্ছেদ ৭২(৩) অনুযায়ী ৫ বছর।" },
-    { id: "c6", question: "সংবিধান মোট কতবার সংশোধন করা হয়েছে?", options: ["১৫", "১৬", "১৭", "১৮"], answer: 2, explanation: "এ পর্যন্ত ১৭ বার সংশোধন (সর্বশেষ ২০১৮)।" },
-    { id: "c7", question: "কোন সংশোধনীতে ধর্মনিরপেক্ষতা পুনঃপ্রবর্তন করা হয়?", options: ["১২তম", "১৩তম", "১৪তম", "১৫তম"], answer: 3, explanation: "১৫তম সংশোধনী (২০১১) দ্বারা ধর্মনিরপেক্ষতা পুনঃপ্রবর্তন।" },
-    { id: "c8", question: "কোন সংশোধনীতে তত্ত্বাবধায়ক সরকার বাতিল হয়?", options: ["১৩তম", "১৪তম", "১৫তম", "১৬তম"], answer: 2, explanation: "১৫তম সংশোধনী (২০১১) দ্বারা বাতিল।" },
-    { id: "c9", question: "প্রধানমন্ত্রী কে নিয়োগ দেন?", options: ["স্পিকার", "রাষ্ট্রপতি", "চিফ জাস্টিস", "সংসদ"], answer: 1, explanation: "অনুচ্ছেদ ৫৬(৩) অনুযায়ী রাষ্ট্রপতি নিয়োগ দেন।" },
-    { id: "c10", question: "সুপ্রিম কোর্টের বিচারপতির অবসরের বয়স কত?", options: ["৬২", "৬৫", "৬৭", "৭০"], answer: 2, explanation: "অনুচ্ছেদ ৯৬(১) অনুযায়ী ৬৭ বছর।" },
+    { id: "c1", question: "সংবিধান কত সালে কার্যকর?", options: ["১৯৭১", "১৯৭২", "১৯৭৩", "১৯৭৪"], answer: 1, explanation: "১৬ ডিসেম্বর ১৯৭২ থেকে।" },
+    { id: "c2", question: "প্রস্তাবনায় কয়টি মূলনীতি?", options: ["৩", "৪", "৫", "৬"], answer: 1, explanation: "জাতীয়তাবাদ, সমাজতন্ত্র, গণতন্ত্র, ধর্মনিরপেক্ষতা — ৪টি।" },
+    { id: "c3", question: "আইনের দৃষ্টিতে সমতা — কোন অনুচ্ছেদ?", options: ["২৫", "২৭", "২৯", "৩১"], answer: 1, explanation: "অনুচ্ছেদ ২৭।" },
+    { id: "c4", question: "রাষ্ট্রপতির মেয়াদ?", options: ["৪", "৫", "৬", "৭"], answer: 1, explanation: "অনুচ্ছেদ ৫০(২): ৫ বছর।" },
+    { id: "c5", question: "জাতীয় সংসদের মেয়াদ?", options: ["৪", "৫", "৬", "৩"], answer: 1, explanation: "অনুচ্ছেদ ৭২(৩): ৫ বছর।" },
+    { id: "c6", question: "সংবিধান কতবার সংশোধন?", options: ["১৫", "১৬", "১৭", "১৮"], answer: 2, explanation: "১৭ বার (সর্বশেষ ২০১৮)।" },
+    { id: "c7", question: "ধর্মনিরপেক্ষতা কোন সংশোধনীতে ফিরে আসে?", options: ["১২তম", "১৩তম", "১৪তম", "১৫তম"], answer: 3, explanation: "১৫তম সংশোধনী (২০১১)।" },
+    { id: "c8", question: "তত্ত্বাবধায়ক সরকার কোন সংশোধনীতে বাতিল?", options: ["১৩তম", "১৪তম", "১৫তম", "১৬তম"], answer: 2, explanation: "১৫তম সংশোধনী (২০১১)।" },
+    { id: "c9", question: "প্রধানমন্ত্রী কে নিয়োগ দেন?", options: ["স্পিকার", "রাষ্ট্রপতি", "চিফ জাস্টিস", "সংসদ"], answer: 1, explanation: "অনুচ্ছেদ ৫৬(৩): রাষ্ট্রপতি।" },
+    { id: "c10", question: "বিচারপতির অবসরের বয়স?", options: ["৬২", "৬৫", "৬৭", "৭০"], answer: 2, explanation: "অনুচ্ছেদ ৯৬(১): ৬৭ বছর।" },
   ],
 
-  // ========== ICT ==========
   "কম্পিউটার ও আইসিটি": [
-    { id: "ict1", question: "কম্পিউটারের জনক কাকে বলা হয়?", options: ["চার্লস ব্যাবেজ", "অ্যালান টুরিং", "জন ভন নিউম্যান", "বিল গেটস"], answer: 0, explanation: "চার্লস ব্যাবেজ Analytical Engine তৈরি করেন।" },
-    { id: "ict2", question: "RAM-এর পূর্ণরূপ কী?", options: ["Read Access Memory", "Random Access Memory", "Read And Memory", "Rapid Access Memory"], answer: 1, explanation: "RAM = Random Access Memory, volatile মেমোরি।" },
-    { id: "ict3", question: "ROM-এর পূর্ণরূপ কী?", options: ["Random Only Memory", "Read Only Memory", "Rapid Output Memory", "Read Output Memory"], answer: 1, explanation: "ROM = Read Only Memory, non-volatile।" },
-    { id: "ict4", question: "১ GB = কত MB?", options: ["১০০", "৫১২", "১০২৪", "১০৪৮"], answer: 2, explanation: "1 GB = 1024 MB (বাইনারি পদ্ধতি)।" },
-    { id: "ict5", question: "CPU-র কোন অংশ গাণিতিক কাজ করে?", options: ["CU", "ALU", "MU", "Register"], answer: 1, explanation: "ALU (Arithmetic Logic Unit) গাণিতিক ও যৌক্তিক কাজ করে।" },
-    { id: "ict6", question: "WWW-এর পূর্ণরূপ কী?", options: ["World Wide Web", "World Web Wide", "Web World Wide", "Wide World Web"], answer: 0, explanation: "WWW = World Wide Web, ১৯৮৯ সালে টিম বার্নার্স-লি উদ্ভাবন করেন।" },
-    { id: "ict7", question: "ইন্টারনেটের জনক কাকে বলা হয়?", options: ["টিম বার্নার্স-লি", "ভিন্ট সার্ফ ও বব কান", "বিল গেটস", "স্টিভ জবস"], answer: 1, explanation: "TCP/IP প্রোটোকলের উদ্ভাবক ভিন্ট সার্ফ ও বব কান।" },
-    { id: "ict8", question: "AI-র পূর্ণরূপ কী?", options: ["Advanced Internet", "Artificial Intelligence", "Automated Input", "Analog Integration"], answer: 1, explanation: "AI = Artificial Intelligence (কৃত্রিম বুদ্ধিমত্তা)।" },
-    { id: "ict9", question: "DNS-এর কাজ কী?", options: ["ডাটা এনক্রিপ্ট", "ডোমেইন নামকে IP-তে রূপান্তর", "ভাইরাস স্ক্যান", "স্পিড বাড়ানো"], answer: 1, explanation: "DNS ডোমেইন নামকে IP অ্যাড্রেসে রূপান্তর করে।" },
-    { id: "ict10", question: "ফায়ারওয়াল কী কাজ করে?", options: ["ভাইরাস স্ক্যান", "অননুমোদিত প্রবেশ রোধ", "ডাটা স্টোর", "স্পিড বাড়ায়"], answer: 1, explanation: "ফায়ারওয়াল নেটওয়ার্কে অননুমোদিত প্রবেশ রোধ করে।" },
+    { id: "ict1", question: "কম্পিউটারের জনক?", options: ["চার্লস ব্যাবেজ", "টুরিং", "নিউম্যান", "বিল গেটস"], answer: 0, explanation: "চার্লস ব্যাবেজ Analytical Engine তৈরি করেন।" },
+    { id: "ict2", question: "RAM-এর পূর্ণরূপ?", options: ["Read Access Memory", "Random Access Memory", "Read And Memory", "Rapid Access Memory"], answer: 1, explanation: "Random Access Memory, volatile।" },
+    { id: "ict3", question: "ROM-এর পূর্ণরূপ?", options: ["Random Only Memory", "Read Only Memory", "Rapid Output Memory", "Read Output Memory"], answer: 1, explanation: "Read Only Memory, non-volatile।" },
+    { id: "ict4", question: "১ GB = কত MB?", options: ["১০০", "৫১২", "১০২৪", "১০৪৮"], answer: 2, explanation: "1 GB = 1024 MB।" },
+    { id: "ict5", question: "CPU-র গাণিতিক অংশ?", options: ["CU", "ALU", "MU", "Register"], answer: 1, explanation: "ALU গাণিতিক ও যৌক্তিক কাজ করে।" },
+    { id: "ict6", question: "WWW-এর পূর্ণরূপ?", options: ["World Wide Web", "World Web Wide", "Web World Wide", "Wide World Web"], answer: 0, explanation: "World Wide Web, ১৯৮৯ সালে টিম বার্নার্স-লি।" },
+    { id: "ict7", question: "ইন্টারনেটের জনক?", options: ["টিম বার্নার্স-লি", "ভিন্ট সার্ফ ও বব কান", "বিল গেটস", "স্টিভ জবস"], answer: 1, explanation: "TCP/IP প্রোটোকলের উদ্ভাবক।" },
+    { id: "ict8", question: "AI-র পূর্ণরূপ?", options: ["Advanced Internet", "Artificial Intelligence", "Automated Input", "Analog Integration"], answer: 1, explanation: "Artificial Intelligence।" },
+    { id: "ict9", question: "DNS-এর কাজ?", options: ["এনক্রিপ্ট", "ডোমেইন→IP", "ভাইরাস স্ক্যান", "স্পিড"], answer: 1, explanation: "ডোমেইন নামকে IP-তে রূপান্তর।" },
+    { id: "ict10", question: "ফায়ারওয়াল কী করে?", options: ["ভাইরাস স্ক্যান", "অননুমোদিত প্রবেশ রোধ", "ডাটা স্টোর", "স্পিড বাড়ায়"], answer: 1, explanation: "নেটওয়ার্ক নিরাপত্তা দেয়।" },
+  ],
+
+  "জ্যামিতি ও পরিমিতি": [
+    { id: "gm1", question: "পিথাগোরাসের উপপাদ্য কোন ত্রিভুজের জন্য?", options: ["সমবাহু", "সমদ্বিবাহু", "সমকোণী", "স্থূলকোণী"], answer: 2, explanation: "সমকোণী ত্রিভুজে অতিভুজ² = ভূমি² + লম্ব²।" },
+    { id: "gm2", question: "বৃত্তের পরিধি = ?", options: ["πr", "2πr", "πr²", "2πr²"], answer: 1, explanation: "বৃত্তের পরিধি = 2πr।" },
+    { id: "gm3", question: "ত্রিভুজের ক্ষেত্রফল = ?", options: ["½ × ভূমি × উচ্চতা", "দৈর্ঘ্য × প্রস্থ", "πr²", "বাহু³"], answer: 0, explanation: "ত্রিভুজের ক্ষেত্রফল = ½ × ভূমি × উচ্চতা।" },
+    { id: "gm4", question: "বর্গের কর্ণ = ?", options: ["a", "a√2", "a√3", "2a"], answer: 1, explanation: "বর্গের কর্ণ = বাহু × √2 = a√2।" },
+    { id: "gm5", question: "গোলকের আয়তন = ?", options: ["4/3 πr³", "πr²h", "4πr²", "2/3 πr³"], answer: 0, explanation: "গোলকের আয়তন = 4/3 πr³।" },
+    { id: "gm6", question: "রম্বসের ক্ষেত্রফল = ?", options: ["½ × কর্ণদ্বয়ের গুণফল", "দৈর্ঘ্য × প্রস্থ", "বাহু²", "πr²"], answer: 0, explanation: "রম্বসের ক্ষেত্রফল = ½ × d1 × d2।" },
+    { id: "gm7", question: "সমবাহু ত্রিভুজের ক্ষেত্রফল = ?", options: ["√3/4 a²", "½ a²", "a²", "√3 a²"], answer: 0, explanation: "সমবাহু ত্রিভুজের ক্ষেত্রফল = √3/4 × বাহু²।" },
+    { id: "gm8", question: "চতুর্ভুজের চার কোণের সমষ্টি?", options: ["১৮০°", "২৭০°", "৩৬০°", "৯০°"], answer: 2, explanation: "যেকোনো চতুর্ভুজের চার কোণের সমষ্টি ৩৬০°।" },
+    { id: "gm9", question: "সামান্তরিকের ক্ষেত্রফল = ?", options: ["ভূমি × উচ্চতা", "½ × ভূমি × উচ্চতা", "দৈর্ঘ্য × প্রস্থ", "πr²"], answer: 0, explanation: "সামান্তরিকের ক্ষেত্রফল = ভূমি × উচ্চতা।" },
+    { id: "gm10", question: "বৃত্তের ক্ষেত্রফল = ?", options: ["πr", "2πr", "πr²", "2πr²"], answer: 2, explanation: "বৃত্তের ক্ষেত্রফল = πr²।" },
   ],
 };
 
@@ -114,36 +131,60 @@ export default function LocalMCQViewer({ topic }: Props) {
     if (found && found.length > 0) {
       setMcqs([...found].sort(() => Math.random() - 0.5));
       setCurrentIndex(0); setSelectedOption(null); setIsRevealed(false); setScore(0); setQuizFinished(false);
-      setErrorMsg("");
     } else {
       setErrorMsg("এই টপিকের MCQ এখনো তৈরি হয়নি। AI MCQ ব্যবহার করুন।");
     }
     setLoading(false);
   }, [topic]);
 
-  const currentMCQ = mcqs[currentIndex] || null;
-  const handleOptionSelect = (idx: number) => { if (isRevealed) return; setSelectedOption(idx); };
-  const handleCheckAnswer = () => { if (selectedOption === null || !currentMCQ) return; setIsRevealed(true); if (selectedOption === currentMCQ.answer) setScore(p => p + 1); };
-  const handleNext = () => { if (currentIndex + 1 < mcqs.length) { setCurrentIndex(p => p + 1); setSelectedOption(null); setIsRevealed(false); } else setQuizFinished(true); };
-  const handleRetry = () => { setCurrentIndex(0); setSelectedOption(null); setIsRevealed(false); setScore(0); setQuizFinished(false); };
-
-  if (loading) return <div className="text-center py-10"><div className="animate-spin inline-block w-8 h-8 border-4 border-amber-300 border-t-amber-600 rounded-full mb-2" /><p className="text-amber-700">লোড হচ্ছে...</p></div>;
+  if (loading) return <div className="text-center py-10"><div className="animate-spin w-8 h-8 border-4 border-amber-300 border-t-amber-600 rounded-full mb-2 mx-auto" /><p className="text-amber-700">লোড হচ্ছে...</p></div>;
   if (errorMsg) return <div className="bg-white rounded-2xl border border-amber-200 p-8 text-center"><p className="text-red-600">{errorMsg}</p></div>;
 
+  const q = mcqs[currentIndex];
+  const done = quizFinished;
+
   return (
-    <div className="space-y-6">
-      {!quizFinished && currentMCQ && (
-        <div className="bg-white rounded-2xl border border-amber-200 shadow-sm overflow-hidden">
-          <div className="h-2 bg-amber-100"><div className="h-full bg-amber-500 transition-all" style={{ width: `${((currentIndex + (isRevealed ? 1 : 0)) / mcqs.length) * 100}%` }} /></div>
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4"><span className="text-sm font-medium bg-amber-100 px-3 py-1 rounded-full">প্রশ্ন {currentIndex + 1} / {mcqs.length}</span><span className="text-sm text-gray-600">সঠিক: {score}</span></div>
-            <p className="text-lg font-semibold text-gray-800 mb-5">{currentMCQ.question}</p>
-            <div className="space-y-2">{currentMCQ.options.map((opt, idx) => { const isCorrect = idx === currentMCQ.answer, isSelected = idx === selectedOption; let cls = "border-gray-200 bg-white"; if (isRevealed) { if (isCorrect) cls = "border-green-500 bg-green-50"; else if (isSelected && !isCorrect) cls = "border-red-500 bg-red-50"; else cls = "opacity-60"; } else if (isSelected) cls = "border-amber-500 bg-amber-50"; return <button key={idx} disabled={isRevealed} onClick={() => handleOptionSelect(idx)} className={`w-full text-left p-3 rounded-xl border transition ${cls} ${!isRevealed ? "hover:bg-amber-50" : ""}`}>{String.fromCharCode(65 + idx)}. {opt}</button>; })}</div>
-            <div className="mt-4">{!isRevealed ? <button onClick={handleCheckAnswer} disabled={selectedOption === null} className="w-full bg-amber-500 text-white py-2.5 rounded-xl font-semibold disabled:opacity-50">উত্তর দেখুন</button> : <div className="space-y-3"><div className={`p-3 rounded-xl ${selectedOption === currentMCQ.answer ? "bg-green-50 border border-green-300" : "bg-red-50 border border-red-300"}`}><p className="font-bold">{selectedOption === currentMCQ.answer ? "✓ সঠিক!" : "✗ ভুল"}</p>{selectedOption !== currentMCQ.answer && <p className="text-sm">সঠিক: {String.fromCharCode(65 + currentMCQ.answer)}</p>}<p className="text-sm mt-1">{currentMCQ.explanation}</p></div><button onClick={handleNext} className="w-full bg-amber-500 text-white py-2.5 rounded-xl font-semibold">পরবর্তী →</button></div>}</div>
+    <div className="space-y-4">
+      {!done && q && (
+        <div className="bg-white rounded-2xl border border-amber-200 shadow-sm p-5">
+          <div className="flex justify-between mb-3 text-sm text-gray-500">
+            <span>প্রশ্ন {currentIndex + 1}/{mcqs.length}</span>
+            <span>সঠিক: {score}</span>
+          </div>
+          <p className="font-semibold text-gray-800 mb-4">{q.question}</p>
+          <div className="space-y-2">
+            {q.options.map((o, i) => {
+              const c = i === q.answer, s = i === selectedOption;
+              let cls = "border-gray-200 bg-white";
+              if (isRevealed) { if (c) cls = "border-green-500 bg-green-50"; else if (s) cls = "border-red-500 bg-red-50"; else cls = "opacity-60"; }
+              else if (s) cls = "border-amber-500 bg-amber-50";
+              return <button key={i} disabled={isRevealed} onClick={() => { if (!isRevealed) setSelectedOption(i); }} className={`w-full text-left p-3 rounded-xl border transition ${cls}`}>{String.fromCharCode(65 + i)}. {o}</button>;
+            })}
+          </div>
+          <div className="mt-4">
+            {!isRevealed ? (
+              <button onClick={() => { if (selectedOption !== null) { setIsRevealed(true); if (selectedOption === q.answer) setScore(p => p + 1); } }} disabled={selectedOption === null} className="w-full bg-amber-500 text-white py-2.5 rounded-xl font-semibold disabled:opacity-50">উত্তর দেখুন</button>
+            ) : (
+              <div className="space-y-3">
+                <div className={`p-3 rounded-xl ${selectedOption === q.answer ? "bg-green-50 border-green-300" : "bg-red-50 border-red-300"}`}>
+                  <p className="font-bold">{selectedOption === q.answer ? "✓ সঠিক!" : "✗ ভুল"}</p>
+                  {selectedOption !== q.answer && <p className="text-sm">সঠিক: {String.fromCharCode(65 + q.answer)}</p>}
+                  <p className="text-sm mt-1">{q.explanation}</p>
+                </div>
+                <button onClick={() => { if (currentIndex + 1 < mcqs.length) { setCurrentIndex(p => p + 1); setSelectedOption(null); setIsRevealed(false); } else setQuizFinished(true); }} className="w-full bg-amber-500 text-white py-2.5 rounded-xl font-semibold">পরবর্তী →</button>
+              </div>
+            )}
           </div>
         </div>
       )}
-      {quizFinished && <div className="bg-white rounded-2xl border border-amber-200 p-8 text-center"><div className="text-4xl mb-3">🎯</div><h2 className="text-2xl font-bold text-amber-800 mb-3">কুইজ শেষ!</h2><p className="text-lg">সঠিক: {score} / {mcqs.length} ({Math.round((score / mcqs.length) * 100)}%)</p><button onClick={handleRetry} className="mt-4 bg-amber-500 text-white px-6 py-2 rounded-xl font-semibold">আবার শুরু</button></div>}
+      {done && (
+        <div className="bg-white rounded-2xl border border-amber-200 p-8 text-center">
+          <div className="text-4xl mb-3">🎯</div>
+          <h2 className="text-xl font-bold text-amber-800 mb-2">কুইজ শেষ!</h2>
+          <p className="text-lg">সঠিক: {score}/{mcqs.length} ({Math.round((score/mcqs.length)*100)}%)</p>
+          <button onClick={() => { setCurrentIndex(0); setSelectedOption(null); setIsRevealed(false); setScore(0); setQuizFinished(false); }} className="mt-4 bg-amber-500 text-white px-6 py-2 rounded-xl font-semibold">আবার শুরু</button>
+        </div>
+      )}
     </div>
   );
 }
