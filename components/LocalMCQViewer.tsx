@@ -13,9 +13,78 @@ interface MCQ {
   topic?: string;
 }
 
-interface Props {
-  topic: string;
-}
+interface Props { topic: string; }
+
+// MCQ Bank সরাসরি এখানে
+const MCQ_BANK: Record<string, MCQ[]> = {
+  "বাংলা ব্যাকরণ": [
+    {
+      id: "s1",
+      question: "'উপশহর' শব্দে 'উপ' উপসর্গটি কোন অর্থে ব্যবহৃত হয়েছে?",
+      options: ["ক্ষুদ্র অর্থে", "সাদৃশ্য অর্থে", "সমীপ্য অর্থে", "বিরোধ অর্থে"],
+      answer: 1,
+      explanation: "শহরের সদৃশ = উপশহর। এখানে 'উপ' উপসর্গটি সাদৃশ্য অর্থে ব্যবহৃত।"
+    },
+    {
+      id: "s2",
+      question: "'যথারীতি' শব্দে 'যথা' উপসর্গটি কোন অর্থ প্রকাশ করে?",
+      options: ["সাদৃশ্য", "অতিক্রান্ত", "অনতিক্রম্যতা", "বিরোধ"],
+      answer: 2,
+      explanation: "রীতিকে অতিক্রম না করে = যথারীতি। 'যথা' উপসর্গটি অনতিক্রম্যতা অর্থে ব্যবহৃত।"
+    },
+    {
+      id: "s3",
+      question: "'উচ্ছৃঙ্খল' শব্দে 'উৎ' উপসর্গটি কোন অর্থে ব্যবহৃত?",
+      options: ["ঈষৎ অর্থে", "অতিক্রান্ত অর্থে", "ক্ষুদ্র অর্থে", "পূর্ণ অর্থে"],
+      answer: 1,
+      explanation: "শৃঙ্খলাকে অতিক্রান্ত = উচ্ছৃঙ্খল। 'উৎ' উপসর্গটি অতিক্রান্ত অর্থে ব্যবহৃত।"
+    },
+    {
+      id: "s4",
+      question: "'প্রতিবাদ' শব্দে 'প্রতি' উপসর্গটি কোন অর্থে ব্যবহৃত?",
+      options: ["পশ্চাৎ অর্থে", "প্রতিনিধি অর্থে", "বিরোধ অর্থে", "সাদৃশ্য অর্থে"],
+      answer: 2,
+      explanation: "বিরুদ্ধ বাদ = প্রতিবাদ। 'প্রতি' উপসর্গটি বিরোধ অর্থে ব্যবহৃত।"
+    },
+    {
+      id: "s5",
+      question: "সমাস কাকে বলে?",
+      options: ["দুটি পদের মিলন", "পরস্পর সম্পর্কযুক্ত দুই বা ততোধিক পদের এক পদে পরিণত হওয়া", "শব্দের বিভক্তি যোগ", "উপসর্গ যোগ"],
+      answer: 1,
+      explanation: "পরস্পর সম্পর্কযুক্ত দুই বা ততোধিক পদ এক পদে পরিণত হওয়াকে সমাস বলে।"
+    }
+  ],
+  "বাংলা সাহিত্য": [
+    {
+      id: "n1",
+      question: "কাজী নজরুল ইসলামের জন্মস্থান কোথায়?",
+      options: ["ঢাকা", "চুরুলিয়া, বর্ধমান", "কলকাতা", "কুমিল্লা"],
+      answer: 1,
+      explanation: "নজরুল পশ্চিমবঙ্গের বর্ধমান জেলার চুরুলিয়ায় জন্মগ্রহণ করেন।"
+    },
+    {
+      id: "n2",
+      question: "নজরুলের প্রথম প্রকাশিত কবিতা কোনটি?",
+      options: ["বিদ্রোহী", "আনন্দময়ীর আগমনে", "মুক্তি", "প্রলয়শিখা"],
+      answer: 2,
+      explanation: "১৯১৯ সালে 'মুক্তি' কবিতাটি বঙ্গীয় মুসলিম সাহিত্য পত্রিকায় প্রকাশিত হয়।"
+    },
+    {
+      id: "n3",
+      question: "জীবনানন্দ দাশ কত সালে জন্মগ্রহণ করেন?",
+      options: ["১৮৯৯", "১৯০০", "১৯০১", "১৯০২"],
+      answer: 0,
+      explanation: "জীবনানন্দ দাশ ১৮৯৯ সালের ১৭ ফেব্রুয়ারি বরিশালে জন্মগ্রহণ করেন।"
+    },
+    {
+      id: "n4",
+      question: "'আবার আসিব ফিরে ধানসিঁড়িটির তীরে' — কার লেখা?",
+      options: ["রবীন্দ্রনাথ", "নজরুল", "জীবনানন্দ দাশ", "জসীমউদ্দীন"],
+      answer: 2,
+      explanation: "এটি জীবনানন্দ দাশের বিখ্যাত কবিতা।"
+    }
+  ]
+};
 
 export default function LocalMCQViewer({ topic }: Props) {
   const [mcqs, setMcqs] = useState<MCQ[]>([]);
@@ -27,44 +96,36 @@ export default function LocalMCQViewer({ topic }: Props) {
   const [score, setScore] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
 
-  useEffect(() => { loadMCQs(); }, [topic]);
-
-  const loadMCQs = async () => {
-    setLoading(true); setErrorMsg("");
-    try {
-      const res = await fetch("/api/local-mcq", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic }),
-      });
-      const data = await res.json();
-      if (data.mcqs?.length > 0) {
-        setMcqs(data.mcqs); setCurrentIndex(0); setSelectedOption(null);
-        setIsRevealed(false); setScore(0); setQuizFinished(false);
-      } else setErrorMsg(data.error || "কোনো MCQ পাওয়া যায়নি");
-    } catch { setErrorMsg("MCQ লোড করতে সমস্যা হয়েছে"); }
-    finally { setLoading(false); }
-  };
+  useEffect(() => {
+    setLoading(true);
+    const found = MCQ_BANK[topic];
+    if (found && found.length > 0) {
+      const shuffled = [...found].sort(() => Math.random() - 0.5);
+      setMcqs(shuffled);
+      setCurrentIndex(0); setSelectedOption(null); setIsRevealed(false); setScore(0); setQuizFinished(false);
+      setErrorMsg("");
+    } else {
+      setErrorMsg("এই টপিকের MCQ এখনো তৈরি হয়নি। নতুন MCQ তৈরি করতে AI MCQ ব্যবহার করুন।");
+    }
+    setLoading(false);
+  }, [topic]);
 
   const currentMCQ = mcqs[currentIndex] || null;
 
   const handleOptionSelect = (idx: number) => { if (isRevealed) return; setSelectedOption(idx); };
-
   const handleCheckAnswer = () => {
     if (selectedOption === null || !currentMCQ) return;
     setIsRevealed(true);
     if (selectedOption === currentMCQ.answer) setScore(p => p + 1);
   };
-
   const handleNext = () => {
     if (currentIndex + 1 < mcqs.length) { setCurrentIndex(p => p + 1); setSelectedOption(null); setIsRevealed(false); }
     else setQuizFinished(true);
   };
-
   const handleRetry = () => { setCurrentIndex(0); setSelectedOption(null); setIsRevealed(false); setScore(0); setQuizFinished(false); };
 
   if (loading) return <div className="text-center py-10"><div className="animate-spin inline-block w-8 h-8 border-4 border-amber-300 border-t-amber-600 rounded-full mb-2" /><p className="text-amber-700">MCQ লোড হচ্ছে...</p></div>;
-  if (errorMsg) return <div className="bg-white rounded-2xl border border-amber-200 p-8 text-center"><p className="text-red-600">{errorMsg}</p><button onClick={loadMCQs} className="mt-3 bg-amber-500 text-white px-4 py-2 rounded-xl text-sm">আবার চেষ্টা</button></div>;
+  if (errorMsg) return <div className="bg-white rounded-2xl border border-amber-200 p-8 text-center"><p className="text-red-600">{errorMsg}</p></div>;
 
   return (
     <div className="space-y-6">
