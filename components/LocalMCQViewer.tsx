@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import sandhiMCQs from "@/data/bangla/grammar/sandhi.json";
+import samasMCQs from "@/data/bangla/grammar/samas.json";
 
 interface MCQ {
   id: string;
@@ -13,24 +15,7 @@ interface MCQ {
 interface Props { topic: string; }
 
 const MCQ_BANK: Record<string, MCQ[]> = {
-  "বাংলা ব্যাকরণ": [
-    { id: "bg1", question: "'উপশহর' শব্দে 'উপ' উপসর্গটি কোন অর্থে ব্যবহৃত হয়েছে?", options: ["ক্ষুদ্র", "সাদৃশ্য", "সমীপ্য", "বিরোধ"], answer: 1, explanation: "শহরের সদৃশ = উপশহর।" },
-    { id: "bg2", question: "'যথারীতি' শব্দে 'যথা' উপসর্গটি কোন অর্থ প্রকাশ করে?", options: ["সাদৃশ্য", "অতিক্রান্ত", "অনতিক্রম্যতা", "বিরোধ"], answer: 2, explanation: "রীতিকে অতিক্রম না করে = যথারীতি।" },
-    { id: "bg3", question: "সমাস কাকে বলে?", options: ["দুটি পদের মিলন", "সম্পর্কযুক্ত দুই বা ততোধিক পদের এক পদে পরিণত হওয়া", "শব্দের বিভক্তি যোগ", "উপসর্গ যোগ"], answer: 1, explanation: "পরস্পর সম্পর্কযুক্ত দুই বা ততোধিক পদ এক পদে পরিণত হওয়াকে সমাস বলে।" },
-    { id: "bg4", question: "প্রাদি সমাস কাকে বলে?", options: ["ব্যাসবাক্য ছাড়া", "প্র, প্রতি, অনু + কৃৎ প্রত্যয়", "নিত্য সমাসবদ্ধ", "উপমান-উপমেয়"], answer: 1, explanation: "প্র, প্রতি, অনু অব্যয় + কৃৎ প্রত্যয় সাধিত বিশেষ্য = প্রাদি সমাস।" },
-    { id: "bg5", question: "নিত্যসমাসের বৈশিষ্ট্য?", options: ["উপসর্গ যুক্ত", "উপমান-উপমেয়", "নিত্য সমাসবদ্ধ, ব্যাসবাক্য লাগে না", "বিভক্তি লোপ পায় না"], answer: 2, explanation: "পদগুলো নিত্য সমাসবদ্ধ থাকে।" },
-    { id: "bg6", question: "'আরক্তিম' শব্দে 'আ' উপসর্গটি কোন অর্থ?", options: ["পূর্ণ", "ক্ষুদ্র", "ঈষৎ", "বিরোধ"], answer: 2, explanation: "ঈষৎ রক্তিম = আরক্তিম।" },
-    { id: "bg7", question: "'প্রতিবাদ' শব্দে 'প্রতি' উপসর্গটি কোন অর্থে?", options: ["পশ্চাৎ", "প্রতিনিধি", "বিরোধ", "সাদৃশ্য"], answer: 2, explanation: "বিরুদ্ধ বাদ = প্রতিবাদ।" },
-    { id: "bg8", question: "'উচ্ছৃঙ্খল' শব্দে 'উৎ' উপসর্গটি কোন অর্থে?", options: ["ঈষৎ", "অতিক্রান্ত", "ক্ষুদ্র", "পূর্ণ"], answer: 1, explanation: "শৃঙ্খলাকে অতিক্রান্ত = উচ্ছৃঙ্খল।" },
-    { id: "bg9", question: "'অনুধাবন' শব্দে 'অনু' উপসর্গের অর্থ?", options: ["বিরোধ", "সাদৃশ্য", "পশ্চাৎ", "ক্ষুদ্র"], answer: 2, explanation: "পশ্চাৎ ধাবন = অনুধাবন।" },
-    { id: "bg10", question: "'পরোক্ষ' শব্দে 'পর' উপসর্গটি কী অর্থে?", options: ["সমীপ্য", "দূরবর্তী", "ঈষৎ", "ক্ষুদ্র"], answer: 1, explanation: "অক্ষির অগোচরে = পরোক্ষ।" },
-    { id: "bg11", question: "'প্রবচন' শব্দের ব্যাসবাক্য?", options: ["প্রকৃষ্ট যে বচন", "প্রতি যে বচন", "প্রকৃষ্ট রূপে বচন", "প্রতি রূপে বচন"], answer: 0, explanation: "প্র (প্রকৃষ্ট) যে বচন = প্রবচন।" },
-    { id: "bg12", question: "'গ্রামান্তর' শব্দের ব্যাসবাক্য?", options: ["গ্রামের অন্য", "গ্রামের মধ্যে", "অন্য গ্রাম", "গ্রামের বাইরে"], answer: 2, explanation: "অন্য গ্রাম = গ্রামান্তর। নিত্যসমাস।" },
-    { id: "bg13", question: "'প্রতিপক্ষ' শব্দে 'প্রতি' উপসর্গের অর্থ?", options: ["প্রতিনিধি", "বিরোধ", "প্রতিদ্বন্দ্বী", "পশ্চাৎ"], answer: 2, explanation: "প্রতিদ্বন্দ্বী অর্থে 'প্রতি'।" },
-    { id: "bg14", question: "'প্রভাত' শব্দটি কোন সমাস?", options: ["নিত্যসমাস", "উপপদ", "প্রাদি সমাস", "অলুক"], answer: 2, explanation: "প্র (প্রকৃষ্ট রূপে) ভাত = প্রভাত। প্রাদি সমাস।" },
-    { id: "bg15", question: "'কালসাপ' শব্দটি কোন সমাস?", options: ["প্রাদি", "নিত্যসমাস", "বহুব্রীহি", "কর্মধারয়"], answer: 1, explanation: "কাল (যম) তুল্য সাপ = কালসাপ। নিত্যসমাস।" },
-  ],
-
+  "বাংলা ব্যাকরণ": [...sandhiMCQs, ...samasMCQs],
   "বাংলা সাহিত্য": [
     { id: "bs1", question: "কাজী নজরুল ইসলামের জন্মস্থান?", options: ["ঢাকা", "চুরুলিয়া, বর্ধমান", "কলকাতা", "কুমিল্লা"], answer: 1, explanation: "পশ্চিমবঙ্গের বর্ধমান জেলার চুরুলিয়ায় জন্ম।" },
     { id: "bs2", question: "নজরুলের প্রথম প্রকাশিত কবিতা?", options: ["বিদ্রোহী", "আনন্দময়ীর আগমনে", "মুক্তি", "প্রলয়শিখা"], answer: 2, explanation: "১৯১৯ সালে 'মুক্তি' প্রকাশিত।" },
@@ -48,7 +33,6 @@ const MCQ_BANK: Record<string, MCQ[]> = {
     { id: "bs14", question: "জীবনানন্দ দাশকে কী বলা হয়?", options: ["বিদ্রোহী কবি", "রূপসী বাংলার কবি", "পল্লীকবি", "স্বভাবকবি"], answer: 1, explanation: "বাংলার প্রকৃতি অসাধারণভাবে ফুটিয়েছেন বলে।" },
     { id: "bs15", question: "নজরুল কোন কবিতার জন্য প্রথম কারাবরণ করেন?", options: ["বিদ্রোহী", "প্রলয়শিখা", "আনন্দময়ীর আগমনে", "ভাঙার গান"], answer: 2, explanation: "১৯২২ সালে 'ধূমকেতু'তে 'আনন্দময়ীর আগমনে' প্রকাশের জন্য।" },
   ],
-
   "English Grammar": [
     { id: "eg1", question: "She _____ to school every day.", options: ["go", "goes", "going", "gone"], answer: 1, explanation: "Third person singular → goes।" },
     { id: "eg2", question: "Change voice: 'He wrote a letter.'", options: ["A letter was written by him", "A letter is written", "A letter was wrote", "A letter writes"], answer: 0, explanation: "Past indefinite passive: was/were + V3।" },
@@ -61,7 +45,6 @@ const MCQ_BANK: Record<string, MCQ[]> = {
     { id: "eg9", question: "Antonym of 'Generous':", options: ["Kind", "Liberal", "Stingy", "Noble"], answer: 2, explanation: "Generous (উদার) ≠ Stingy (কৃপণ)।" },
     { id: "eg10", question: "The book _____ on the table.", options: ["is", "are", "am", "be"], answer: 0, explanation: "Singular subject → is।" },
   ],
-
   "বীজগণিত": [
     { id: "pc1", question: "5P3 এর মান কত?", options: ["10", "20", "60", "120"], answer: 2, explanation: "5P3 = 5×4×3 = 60।" },
     { id: "pc2", question: "5C2 এর মান কত?", options: ["5", "10", "15", "20"], answer: 1, explanation: "5C2 = (5×4)/(2×1) = 10।" },
@@ -74,7 +57,6 @@ const MCQ_BANK: Record<string, MCQ[]> = {
     { id: "pc9", question: "6C3 এর মান?", options: ["10", "15", "20", "30"], answer: 2, explanation: "6C3 = 20।" },
     { id: "pc10", question: "10P2 এর মান?", options: ["45", "90", "100", "20"], answer: 1, explanation: "10×9 = 90।" },
   ],
-
   "সংবিধান": [
     { id: "c1", question: "সংবিধান কত সালে কার্যকর?", options: ["১৯৭১", "১৯৭২", "১৯৭৩", "১৯৭৪"], answer: 1, explanation: "১৬ ডিসেম্বর ১৯৭২ থেকে।" },
     { id: "c2", question: "প্রস্তাবনায় কয়টি মূলনীতি?", options: ["৩", "৪", "৫", "৬"], answer: 1, explanation: "জাতীয়তাবাদ, সমাজতন্ত্র, গণতন্ত্র, ধর্মনিরপেক্ষতা — ৪টি।" },
@@ -87,7 +69,6 @@ const MCQ_BANK: Record<string, MCQ[]> = {
     { id: "c9", question: "প্রধানমন্ত্রী কে নিয়োগ দেন?", options: ["স্পিকার", "রাষ্ট্রপতি", "চিফ জাস্টিস", "সংসদ"], answer: 1, explanation: "অনুচ্ছেদ ৫৬(৩): রাষ্ট্রপতি।" },
     { id: "c10", question: "বিচারপতির অবসরের বয়স?", options: ["৬২", "৬৫", "৬৭", "৭০"], answer: 2, explanation: "অনুচ্ছেদ ৯৬(১): ৬৭ বছর।" },
   ],
-
   "কম্পিউটার ও আইসিটি": [
     { id: "ict1", question: "কম্পিউটারের জনক?", options: ["চার্লস ব্যাবেজ", "টুরিং", "নিউম্যান", "বিল গেটস"], answer: 0, explanation: "চার্লস ব্যাবেজ Analytical Engine তৈরি করেন।" },
     { id: "ict2", question: "RAM-এর পূর্ণরূপ?", options: ["Read Access Memory", "Random Access Memory", "Read And Memory", "Rapid Access Memory"], answer: 1, explanation: "Random Access Memory, volatile।" },
@@ -100,7 +81,6 @@ const MCQ_BANK: Record<string, MCQ[]> = {
     { id: "ict9", question: "DNS-এর কাজ?", options: ["এনক্রিপ্ট", "ডোমেইন→IP", "ভাইরাস স্ক্যান", "স্পিড"], answer: 1, explanation: "ডোমেইন নামকে IP-তে রূপান্তর।" },
     { id: "ict10", question: "ফায়ারওয়াল কী করে?", options: ["ভাইরাস স্ক্যান", "অননুমোদিত প্রবেশ রোধ", "ডাটা স্টোর", "স্পিড বাড়ায়"], answer: 1, explanation: "নেটওয়ার্ক নিরাপত্তা দেয়।" },
   ],
-
   "জ্যামিতি ও পরিমিতি": [
     { id: "gm1", question: "পিথাগোরাসের উপপাদ্য কোন ত্রিভুজের জন্য?", options: ["সমবাহু", "সমদ্বিবাহু", "সমকোণী", "স্থূলকোণী"], answer: 2, explanation: "সমকোণী ত্রিভুজে অতিভুজ² = ভূমি² + লম্ব²।" },
     { id: "gm2", question: "বৃত্তের পরিধি = ?", options: ["πr", "2πr", "πr²", "2πr²"], answer: 1, explanation: "বৃত্তের পরিধি = 2πr।" },
@@ -137,11 +117,11 @@ export default function LocalMCQViewer({ topic }: Props) {
     setLoading(false);
   }, [topic]);
 
-  if (loading) return <div className="text-center py-10"><div className="animate-spin w-8 h-8 border-4 border-amber-300 border-t-amber-600 rounded-full mb-2 mx-auto" /><p className="text-amber-700">লোড হচ্ছে...</p></div>;
-  if (errorMsg) return <div className="bg-white rounded-2xl border border-amber-200 p-8 text-center"><p className="text-red-600">{errorMsg}</p></div>;
-
   const q = mcqs[currentIndex];
   const done = quizFinished;
+
+  if (loading) return <div className="text-center py-10"><div className="animate-spin w-8 h-8 border-4 border-amber-300 border-t-amber-600 rounded-full mb-2 mx-auto" /><p className="text-amber-700">লোড হচ্ছে...</p></div>;
+  if (errorMsg) return <div className="bg-white rounded-2xl border border-amber-200 p-8 text-center"><p className="text-red-600">{errorMsg}</p></div>;
 
   return (
     <div className="space-y-4">
