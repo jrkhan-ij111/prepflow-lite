@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import MCQGenerator from "@/components/MCQGenerator";
+import ExternalTracker from "@/components/ExternalTracker";
 
 // ---------- Types ----------
 interface TopicOverview {
@@ -226,6 +227,10 @@ export default function Home() {
               );
             })}
           </div>
+
+          {/* External Tracker */}
+          <ExternalTracker onSessionAdded={() => setOverviews(getAllOverviews())} />
+
           <div className="mt-6">
             <h3 className="text-lg font-bold text-amber-800 mb-3 text-center">🤖 AI সহায়ক টুলস</h3>
             <div className="grid grid-cols-3 gap-3">
