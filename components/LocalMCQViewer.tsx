@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import samasMCQs from "@/data/bangla/grammar/samas.json";
+// ✅ JSON ফাইল ইম্পোর্ট
+import jibananandaMCQs from "@/data/bangla/literature/jibanananda.json";
+import nazrulMCQs from "@/data/bangla/literature/nazrul.json";
 
 interface MCQ {
   id: string;
@@ -15,6 +18,10 @@ interface Props { topic: string; }
 
 const MCQ_BANK: Record<string, MCQ[]> = {
   "বাংলা ব্যাকরণ": samasMCQs,
+  // ✅ নতুন টপিক - JSON থেকে লোড
+  "জীবনানন্দ দাশ": jibananandaMCQs,
+  "কাজী নজরুল ইসলাম": nazrulMCQs,
+  // বাকি টপিক
   "বাংলা সাহিত্য": [
     { id: "bs1", question: "কাজী নজরুল ইসলামের জন্মস্থান?", options: ["ঢাকা", "চুরুলিয়া, বর্ধমান", "কলকাতা", "কুমিল্লা"], answer: 1, explanation: "পশ্চিমবঙ্গের বর্ধমান জেলার চুরুলিয়ায় জন্ম।" },
     { id: "bs2", question: "নজরুলের প্রথম প্রকাশিত কবিতা?", options: ["বিদ্রোহী", "আনন্দময়ীর আগমনে", "মুক্তি", "প্রলয়শিখা"], answer: 2, explanation: "১৯১৯ সালে 'মুক্তি' প্রকাশিত।" },
