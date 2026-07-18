@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import samasMCQs from "@/data/bangla/grammar/samas.json";
-import jibananandaMCQs from "@/data/bangla/grammar/literature/jibanananda.json";
-import nazrulMCQs from "@/data/bangla/grammar/literature/nazrul.json";
+import jibananandaMCQs from "@/data/bangla/literature/jibanananda.json";
+import nazrulMCQs from "@/data/bangla/literature/nazrul.json";
 import permutationMCQs from "@/data/math/permutation_combination.json";
 
 interface MCQ {
