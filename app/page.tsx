@@ -39,23 +39,38 @@ function getTopicOverview(topic: string): TopicOverview {
   const bank = safeGet(bankKey);
   const today = new Date().toISOString().slice(0, 10);
 
+  // ExternalTracker ডাটা
+  let extQuestions = 0, extCorrect = 0, extToday = 0;
+  try {
+    const ext = JSON.parse(localStorage.getItem("prepflow_external") || "[]");
+    ext.forEach((s: any) => {
+      if (s.topic === topic) {
+        extQuestions += s.questions || 0;
+        extCorrect += Math.round((s.questions || 0) * 0.7);
+        if (s.date === today) extToday += s.questions || 0;
+      }
+    });
+  } catch {}
+
   if (!stats) {
     return {
-      topic, accuracy: 0, totalQuestions: 0, masteredQuestions: 0,
-      learningQuestions: 0, newQuestions: bank?.questions?.length || 0,
-      todayCount: 0, lastPracticed: null,
+      topic, accuracy: 0, totalQuestions: extQuestions, masteredQuestions: 0,
+      learningQuestions: 0, newQuestions: (bank?.questions?.length || 0) + extQuestions,
+      todayCount: extToday, lastPracticed: null,
     };
   }
 
-  const total = Object.keys(stats.perQuestion || {}).length;
+  const total = Object.keys(stats.perQuestion || {}).length + extQuestions;
   const mastered = Object.values(stats.perQuestion || {}).filter(
     (q: any) => q.attempts >= 3 && (q.correct / q.attempts) >= 0.8
   ).length;
   const learning = Object.values(stats.perQuestion || {}).filter(
     (q: any) => q.attempts > 0 && (q.attempts < 3 || (q.correct / q.attempts) < 0.8)
   ).length;
-  const acc = stats.totalAttempted > 0 ? Math.round((stats.totalCorrect / stats.totalAttempted) * 100) : 0;
-  const todayCount = stats.daily?.[today]?.attempted || 0;
+  const totalAttempted = stats.totalAttempted + extQuestions;
+  const totalCorrect = stats.totalCorrect + extCorrect;
+  const acc = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+  const todayCount = (stats.daily?.[today]?.attempted || 0) + extToday;
   const dates = Object.keys(stats.daily || {}).sort().reverse();
 
   return {
@@ -130,13 +145,8 @@ export default function Home() {
                     <span className="font-semibold text-amber-900 text-sm">{s}</span>
                     {stotal > 0 && (
                       <div className="mt-2">
-                        <div className="w-full h-1.5 bg-gray-200 rounded-full">
-                          <div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} />
-                        </div>
-                        <div className="flex justify-between text-xs text-gray-500 mt-1">
-                          <span>{sa}%</span>
-                          <span>{smastered}/{stotal} মাস্টার্ড</span>
-                        </div>
+                        <div className="w-full h-1.5 bg-gray-200 rounded-full"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} /></div>
+                        <div className="flex justify-between text-xs text-gray-500 mt-1"><span>{sa}%</span><span>{smastered}/{stotal} মাস্টার্ড</span></div>
                       </div>
                     )}
                     {stotal === 0 && <p className="text-xs text-gray-400 mt-1">শুরু করুন</p>}
@@ -145,7 +155,6 @@ export default function Home() {
               })}
             </div>
           )}
-
           {subject && !topic && (
             <div className="space-y-4">
               <button onClick={() => setSubject(null)} className="text-amber-700 text-sm underline">← বিষয় পরিবর্তন</button>
@@ -155,28 +164,8 @@ export default function Home() {
                   const o = overviews.find(x => x.topic === t); const has = o && o.totalQuestions > 0;
                   return (
                     <button key={t} onClick={() => setTopic(t)} className="bg-white rounded-xl border border-amber-200 p-4 hover:bg-amber-50 transition text-left">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-amber-900 text-sm">{t}</span>
-                        {has && (
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${o.accuracy >= 80 ? "bg-green-100 text-green-700" : o.accuracy >= 50 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>
-                            {o.accuracy}%
-                          </span>
-                        )}
-                      </div>
-                      {has && (
-                        <div className="mt-2">
-                          <div className="flex gap-1 text-xs text-gray-500">
-                            <span>🟢 {o.masteredQuestions}</span>
-                            <span>🟡 {o.learningQuestions}</span>
-                            <span>⚪ {o.newQuestions}</span>
-                          </div>
-                          {o.lastPracticed && (
-                            <p className="text-xs text-gray-400 mt-1">
-                              শেষ: {o.lastPracticed}{o.todayCount > 0 && ` | আজ: ${o.todayCount}টি`}
-                            </p>
-                          )}
-                        </div>
-                      )}
+                      <div className="flex items-center justify-between"><span className="font-medium text-amber-900 text-sm">{t}</span>{has && <span className={`text-xs px-2 py-0.5 rounded-full ${o.accuracy >= 80 ? "bg-green-100 text-green-700" : o.accuracy >= 50 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>{o.accuracy}%</span>}</div>
+                      {has && <div className="mt-2"><div className="flex gap-1 text-xs text-gray-500"><span>🟢 {o.masteredQuestions}</span><span>🟡 {o.learningQuestions}</span><span>⚪ {o.newQuestions}</span></div>{o.lastPracticed && <p className="text-xs text-gray-400 mt-1">শেষ: {o.lastPracticed}{o.todayCount > 0 && ` | আজ: ${o.todayCount}টি`}</p>}</div>}
                       {!has && <p className="text-xs text-gray-400 mt-1">শুরু করুন</p>}
                     </button>
                   );
@@ -184,13 +173,9 @@ export default function Home() {
               </div>
             </div>
           )}
-
           {topic && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <button onClick={() => { setSubject(null); setTopic(null); }} className="text-amber-700 text-sm underline">← বিষয় পরিবর্তন</button>
-                <span className="text-sm font-medium text-amber-800 bg-amber-100 px-3 py-1 rounded-full">{topic}</span>
-              </div>
+              <div className="flex items-center justify-between"><button onClick={() => { setSubject(null); setTopic(null); }} className="text-amber-700 text-sm underline">← বিষয় পরিবর্তন</button><span className="text-sm font-medium text-amber-800 bg-amber-100 px-3 py-1 rounded-full">{topic}</span></div>
               <MCQGenerator topic={topic} />
             </div>
           )}
@@ -227,10 +212,7 @@ export default function Home() {
               );
             })}
           </div>
-
-          {/* External Tracker */}
           <ExternalTracker onSessionAdded={() => setOverviews(getAllOverviews())} />
-
           <div className="mt-6">
             <h3 className="text-lg font-bold text-amber-800 mb-3 text-center">🤖 AI সহায়ক টুলস</h3>
             <div className="grid grid-cols-3 gap-3">
