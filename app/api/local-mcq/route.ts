@@ -1,4 +1,3 @@
-// app/api/local-mcq/route.ts
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
@@ -11,7 +10,6 @@ export async function POST(req: Request) {
     const dataDir = path.join(process.cwd(), "data");
     let mcqs: any[] = [];
 
-    // বাংলা ব্যাকরণ = grammar ফোল্ডারের সব JSON
     if (topic === "বাংলা ব্যাকরণ") {
       const dir = path.join(dataDir, "bangla", "grammar");
       if (fs.existsSync(dir)) {
@@ -21,15 +19,10 @@ export async function POST(req: Request) {
           if (Array.isArray(content)) mcqs.push(...content);
         }
       }
-    }
-    // অন্যান্য টপিক
-    else {
+    } else {
       const topicFile = topic.toLowerCase().replace(/\s+/g, "_") + ".json";
-      // search in data folder
       const found = findFile(dataDir, topicFile);
-      if (found) {
-        mcqs = JSON.parse(fs.readFileSync(found, "utf-8"));
-      }
+      if (found) mcqs = JSON.parse(fs.readFileSync(found, "utf-8"));
     }
 
     if (mcqs.length === 0) {
@@ -44,15 +37,12 @@ export async function POST(req: Request) {
 
 function findFile(dir: string, fileName: string): string | null {
   if (!fs.existsSync(dir)) return null;
-  const list = fs.readdirSync(dir);
-  for (const item of list) {
+  for (const item of fs.readdirSync(dir)) {
     const full = path.join(dir, item);
     if (fs.statSync(full).isDirectory()) {
       const found = findFile(full, fileName);
       if (found) return found;
-    } else if (item === fileName) {
-      return full;
-    }
+    } else if (item === fileName) return full;
   }
   return null;
 }
