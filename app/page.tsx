@@ -20,51 +20,103 @@ interface TopicOverview {
 const SUBJECTS: Record<string, string[]> = {
   "বাংলা": ["বাংলা ব্যাকরণ", "বাংলা সাহিত্য"],
   "ইংরেজী": ["English Grammar", "English Literature"],
-  "গণিত": ["পাটিগণিত", "বীজগণিত", "জ্যামিতি", "ত্রিকোণমিতি", "মানসিক দক্ষতা"],
-  "সাধারণ জ্ঞান": ["বাংলাদেশ বিষয়াবলি", "আন্তর্জাতিক বিষয়াবলি"],
-  "বিজ্ঞান": ["সাধারণ বিজ্ঞান", "কম্পিউটার ও আইসিটি"],
-  "ভূগোল ও পরিবেশ": ["ভূগোল", "পরিবেশ ও দুর্যোগ"],
-  "নৈতিকতা ও সুশাসন": ["নৈতিকতা", "মূল্যবোধ", "সুশাসন"],
-  "ব্যাংকিং ও অর্থনীতি": ["ব্যাংকিং", "অর্থনীতি", "বিশ্লেষণাত্মক ক্ষমতা"],
+  "গণিত": ["পাটিগণিত", "বীজগণিত", "জ্যামিতি ও পরিমিতি", "ত্রিকোণমিতি"],
+  "মানসিক দক্ষতা": ["ভাষাগত যৌক্তিক বিচার", "সংখ্যাগত ক্ষমতা", "স্থানিক ক্ষমতা", "বিন্যাস", "ডাটা ইন্টারপ্রিটেশন"],
+  "সাধারণ জ্ঞান (বাংলাদেশ)": ["প্রাচীন ইতিহাস", "ব্রিটিশ ও পাকিস্তান", "মুক্তিযুদ্ধ", "ভূগোল", "জাতীয় বিষয়", "সংবিধান", "অর্থনীতি"],
+  "সাধারণ জ্ঞান (আন্তর্জাতিক)": ["বৈশ্বিক ইতিহাস", "দেশ পরিচিতি", "আন্তর্জাতিক সংস্থা", "আঞ্চলিক জোট", "পরিবেশ", "পুরস্কার"],
+  "সাধারণ বিজ্ঞান": ["ভৌত বিজ্ঞান", "জীববিজ্ঞান", "আধুনিক বিজ্ঞান"],
+  "কম্পিউটার ও আইসিটি": ["হার্ডওয়্যার", "মেমোরি", "সফটওয়্যার", "সংখ্যা পদ্ধতি", "নেটওয়ার্কিং", "আধুনিক প্রযুক্তি"],
+  "ভূগোল ও পরিবেশ": ["বাংলাদেশ ভূগোল", "পরিবেশ", "দুর্যোগ ব্যবস্থাপনা"],
+  "নৈতিকতা ও সুশাসন": ["নৈতিকতা", "সুশাসন"],
+  "ব্যাংকিং ও ফিন্যান্স": ["ব্যাংকিং টার্মস", "বাংলাদেশ ব্যাংক", "ফিন্যান্স"],
 };
 
-// ---------- Topic Lists ----------
+// ---------- Detailed Topic Lists ----------
 const SUBJECT_TOPICS: Record<string, Record<string, string[]>> = {
   "বাংলা": {
-    "বাংলা ব্যাকরণ": ["ভাষা, বর্ণ, শব্দ, বাক্য", "উপসর্গ", "অনুসর্গ", "সমাস", "কারক ও বিভক্তি", "প্রকৃতি ও প্রত্যয়", "সন্ধি", "বিপরীত শব্দ", "সমার্থক শব্দ", "বাগধারা", "পারিভাষিক শব্দ", "বানান ও বাক্যশুদ্ধি"],
-    "বাংলা সাহিত্য": ["প্রাচীন ও মধ্যযুগ (চর্যাপদ, শ্রীকৃষ্ণকীর্তন, মঙ্গলকাব্য, বৈষ্ণব পদাবলি)", "ঈশ্বরচন্দ্র বিদ্যাসাগর", "বঙ্কিমচন্দ্র চট্টোপাধ্যায়", "মাইকেল মধুসূদন দত্ত", "রবীন্দ্রনাথ ঠাকুর", "কাজী নজরুল ইসলাম", "মুনীর চৌধুরী ও অন্যান্য"],
+    "বাংলা ব্যাকরণ": [
+      "ধ্বনি ও বর্ণ", "শব্দ (উৎসমূলক)", "পদ ও পদের শ্রেণিবিভাগ",
+      "উপসর্গ", "অনুসর্গ", "সন্ধি", "সমাস", "প্রকৃতি ও প্রত্যয়",
+      "বাক্য ও বাক্যের গুণ", "বাক্যের রূপান্তর",
+      "বিপরীত শব্দ", "সমার্থক শব্দ", "বাগধারা", "বানান শুদ্ধি", "পারিভাষিক শব্দ",
+    ],
+    "বাংলা সাহিত্য": [
+      "প্রাচীন যুগ (চর্যাপদ)", "মধ্যযুগ (শ্রীকৃষ্ণকীর্তন, মঙ্গলকাব্য)", "বৈষ্ণব পদাবলি",
+      "ফোর্ট উইলিয়াম কলেজ", "ঈশ্বরচন্দ্র বিদ্যাসাগর", "বঙ্কিমচন্দ্র",
+      "মাইকেল মধুসূদন দত্ত", "রবীন্দ্রনাথ ঠাকুর", "কাজী নজরুল ইসলাম",
+      "মীর মশাররফ হোসেন", "শরৎচন্দ্র", "জসীমউদ্দীন", "মুনীর চৌধুরী",
+      "ভাষা আন্দোলন ও মুক্তিযুদ্ধ সাহিত্য",
+    ],
   },
   "ইংরেজী": {
-    "English Grammar": ["Parts of Speech", "Tense", "Voice", "Narration", "Clause", "Sentence", "Degree", "Preposition", "Determiners", "Idioms and Phrases", "Synonyms & Antonyms", "Spelling", "Analogy", "One Word Substitution", "Reading Comprehension"],
-    "English Literature": ["Figures of Speech", "Literary Terms", "Shakespeare", "John Milton", "William Wordsworth", "P.B. Shelley"],
+    "English Grammar": [
+      "Parts of Speech", "Noun", "Pronoun", "Adjective", "Verb", "Adverb",
+      "Preposition", "Conjunction", "Sentences & Clauses", "Conditionals",
+      "Subject-Verb Agreement", "Voice", "Narration", "Phrases & Idioms",
+      "Synonyms & Antonyms", "Spelling", "Sentence Correction",
+    ],
+    "English Literature": [
+      "Periods of Literature", "Shakespeare", "John Milton", "Wordsworth",
+      "Coleridge", "Shelley", "Keats", "Tennyson", "Dickens", "G.B. Shaw",
+      "T.S. Eliot", "W.B. Yeats", "Literary Terms",
+    ],
   },
   "গণিত": {
-    "পাটিগণিত": ["বাস্তব সংখ্যা", "লসাগু ও গসাগু", "শতকরা", "লাভ ও ক্ষতি", "অনুপাত ও সমানুপাত", "ঐকিক নিয়ম", "সুদকষা", "সময় ও কাজ", "নল ও চৌবাচ্চা"],
-    "বীজগণিত": ["বীজগণিতীয় সূত্রাবলি", "উৎপাদক", "সূচক ও লগারিদম", "সমীকরণ", "অসমতা", "ধারা"],
-    "জ্যামিতি": ["রেখা, কোণ", "ত্রিভুজ", "চতুর্ভুজ", "বৃত্ত", "পিথাগোরাসের উপপাদ্য", "পরিমিতি"],
-    "ত্রিকোণমিতি": ["ত্রিকোণমিতিক অনুপাত", "উচ্চতা ও দূরত্ব"],
-    "মানসিক দক্ষতা": ["গাণিতিক সমস্যা", "সম্পর্ক নির্ণয়", "শ্রেণিকরণ", "সাংকেতিকরণ", "দিক নির্ণয়", "ত্রিমাত্রিক বুদ্ধিমত্তা"],
+    "পাটিগণিত": ["বাস্তব সংখ্যা", "লসাগু-গসাগু", "অনুপাত", "শতকরা", "লাভ-ক্ষতি", "সুদকষা", "ঐকিক নিয়ম", "সময়-কাজ", "গড়"],
+    "বীজগণিত": ["সূত্রাবলি", "সমীকরণ", "অসমতা", "সূচক-লগারিদম", "ধারা", "সেট", "বিন্যাস-সমাবেশ", "সম্ভাব্যতা"],
+    "জ্যামিতি ও পরিমিতি": ["রেখা-কোণ", "ত্রিভুজ", "চতুর্ভুজ", "বৃত্ত", "পরিমিতি"],
+    "ত্রিকোণমিতি": ["অনুপাত", "উচ্চতা-দূরত্ব"],
   },
-  "সাধারণ জ্ঞান": {
-    "বাংলাদেশ বিষয়াবলি": ["ইতিহাস (প্রাচীন-১৯৭১)", "মুক্তিযুদ্ধ", "সংবিধান", "অর্থনীতি", "ভৌগোলিক অবস্থান", "শিল্প ও বাণিজ্য", "সরকার ব্যবস্থা", "অর্জন ও পুরস্কার"],
-    "আন্তর্জাতিক বিষয়াবলি": ["বৈশ্বিক ইতিহাস", "মহাদেশ ও দেশ পরিচিতি", "জাতিসংঘ", "সার্ক", "আসিয়ান", "ওআইসি", "ভূ-রাজনীতি", "পুরস্কার ও সম্মাননা"],
+  "মানসিক দক্ষতা": {
+    "ভাষাগত যৌক্তিক বিচার": ["রক্তসম্পর্ক", "দিক-দূরত্ব", "ঘড়ি-ক্যালেন্ডার"],
+    "সংখ্যাগত ক্ষমতা": ["সিরিজ", "কোডিং-ডিকোডিং"],
+    "স্থানিক ক্ষমতা": ["আয়না প্রতিবিম্ব", "পানি প্রতিফলন", "চিত্র গণনা"],
+    "বিন্যাস": ["সিটিং অ্যারেঞ্জমেন্ট", "পাজল"],
+    "ডাটা ইন্টারপ্রিটেশন": ["টেবিল", "পাই-চার্ট", "বার-গ্রাফ"],
   },
-  "বিজ্ঞান": {
-    "সাধারণ বিজ্ঞান": ["ভৌত বিজ্ঞান (আলো, শব্দ, চুম্বকত্ব, বিদ্যুৎ)", "জীববিজ্ঞান (কোষ, টিস্যু, মানবদেহ)", "রোগব্যাধি", "ভিটামিন", "আধুনিক বিজ্ঞান"],
-    "কম্পিউটার ও আইসিটি": ["কম্পিউটার মৌলিক ধারণা", "হার্ডওয়্যার ও সফটওয়্যার", "অপারেটিং সিস্টেম", "এমএস অফিস", "নেটওয়ার্কিং ও ইন্টারনেট", "ডাটাবেজ", "ই-কমার্স", "সাইবার নিরাপত্তা"],
+  "সাধারণ জ্ঞান (বাংলাদেশ)": {
+    "প্রাচীন ইতিহাস": ["প্রাচীন জনপদ", "পাল-সেন", "সুলতানি-মোঘল"],
+    "ব্রিটিশ ও পাকিস্তান": ["১৭৫৭-১৯৪৭", "ভাষা আন্দোলন", "ছয় দফা", "গণঅভ্যুত্থান"],
+    "মুক্তিযুদ্ধ": ["৭ মার্চ", "মুজিবনগর সরকার", "সেক্টর", "বীরশ্রেষ্ঠ"],
+    "ভূগোল": ["সীমানা", "নদ-নদী", "জলবায়ু", "সুন্দরবন"],
+    "জাতীয় বিষয়": ["প্রতীক", "ইউনেস্কো", "মেগা প্রজেক্ট"],
+    "সংবিধান": ["ইতিহাস", "অনুচ্ছেদ", "সংশোধনী"],
+    "অর্থনীতি": ["জনসংখ্যা", "জিডিপি", "বাজেট", "কৃষি-শিল্প"],
+  },
+  "সাধারণ জ্ঞান (আন্তর্জাতিক)": {
+    "বৈশ্বিক ইতিহাস": ["বিশ্বযুদ্ধ", "স্নায়ুযুদ্ধ", "চুক্তি"],
+    "দেশ পরিচিতি": ["রাজধানী", "মুদ্রা", "সংসদ"],
+    "আন্তর্জাতিক সংস্থা": ["জাতিসংঘ", "বিশ্বব্যাংক", "IMF", "WTO"],
+    "আঞ্চলিক জোট": ["সার্ক", "আসিয়ান", "ওআইসি", "ইইউ", "ব্রিকস", "জি-২০"],
+    "পরিবেশ": ["কোপ", "গ্রিনহাউস", "প্যারিস চুক্তি"],
+    "পুরস্কার": ["নোবেল", "অস্কার", "অলিম্পিক", "বিশ্বকাপ"],
+  },
+  "সাধারণ বিজ্ঞান": {
+    "ভৌত বিজ্ঞান": ["পদার্থ", "পরমাণু", "এসিড-ক্ষার", "আলো", "শব্দ", "বিদ্যুৎ", "চুম্বক"],
+    "জীববিজ্ঞান": ["কোষ", "রক্ত", "পরিপাক", "রেচন", "রোগ", "ভিটামিন"],
+    "আধুনিক বিজ্ঞান": ["মহাবিশ্ব", "সৌরজগৎ", "বায়ুমণ্ডল", "জোয়ার", "বায়োটেকনোলজি"],
+  },
+  "কম্পিউটার ও আইসিটি": {
+    "হার্ডওয়্যার": ["ইনপুট", "আউটপুট", "সিপিইউ"],
+    "মেমোরি": ["RAM", "ROM", "স্টোরেজ"],
+    "সফটওয়্যার": ["OS", "MS Office"],
+    "সংখ্যা পদ্ধতি": ["বাইনারি", "লজিক গেট"],
+    "নেটওয়ার্কিং": ["LAN", "WAN", "IP", "DNS", "ক্লাউড"],
+    "আধুনিক প্রযুক্তি": ["AI", "সাইবার", "ই-কমার্স", "ক্রিপ্টো"],
   },
   "ভূগোল ও পরিবেশ": {
-    "ভূগোল": ["বাংলাদেশের ভৌগোলিক অবস্থান", "বিশ্বের ভৌগোলিক অবস্থান", "ভূমিরূপ", "মৃত্তিকা", "জলবায়ু", "প্রাকৃতিক সম্পদ"],
-    "পরিবেশ ও দুর্যোগ": ["পরিবেশের ভারসাম্য", "বায়ুমণ্ডল", "জীববৈচিত্র্য", "দুর্যোগের কারণ", "দুর্যোগ ব্যবস্থাপনা", "জলবায়ু পরিবর্তন"],
+    "বাংলাদেশ ভূগোল": ["অবস্থান", "ভূপ্রকৃতি"],
+    "পরিবেশ": ["বাস্তুতন্ত্র", "জীববৈচিত্র্য", "ওজোন"],
+    "দুর্যোগ ব্যবস্থাপনা": ["বন্যা", "ভূমিকম্প", "সুনামি", "SDG"],
   },
   "নৈতিকতা ও সুশাসন": {
-    "নৈতিকতা": ["নৈতিকতার ধারণা", "মূল্যবোধের সংজ্ঞা"],
-    "সুশাসন": ["সুশাসনের সংজ্ঞা", "রাষ্ট্র ও সমাজে প্রভাব", "দুর্নীতি প্রতিরোধ", "নাগরিকের দায়িত্ব"],
+    "নৈতিকতা": ["উৎস", "সুনাগরিক"],
+    "সুশাসন": ["উপাদান", "ডিজিটাল গভর্নেন্স", "RTI"],
   },
-  "ব্যাংকিং ও অর্থনীতি": {
-    "ব্যাংকিং": ["ব্যাংকিং পরিভাষা", "বাংলাদেশ ব্যাংক", "বাণিজ্যিক ব্যাংক", "নেগোশিয়েবল ইনস্ট্রুমেন্ট অ্যাক্ট"],
-    "অর্থনীতি": ["সামষ্টিক অর্থনীতি", "ব্যষ্টিক অর্থনীতি", "মুদ্রাস্ফীতি", "বাজেট", "জিডিপি", "জিএনপি", "আন্তর্জাতিক বাণিজ্য"],
-    "বিশ্লেষণাত্মক ক্ষমতা": ["Data Interpretation", "Puzzle Test", "Seating Arrangement"],
+  "ব্যাংকিং ও ফিন্যান্স": {
+    "ব্যাংকিং টার্মস": ["চেক", "CRR", "SLR", "Repo", "NPA"],
+    "বাংলাদেশ ব্যাংক": ["ইতিহাস", "মুদ্রানীতি"],
+    "ফিন্যান্স": ["ডেবিট-ক্রেডিট", "জাবেদা", "ব্যালেন্স শিট"],
   },
 };
 
@@ -159,18 +211,17 @@ export default function Home() {
       {tab === "practice" && (
         <div>
           {!subject && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {Object.keys(SUBJECTS).map(s => {
-                const st = SUBJECTS[s]; const so = allOverview.filter(o => st.includes(o.topic));
+                const so = allOverview.filter(o => SUBJECTS[s].includes(o.topic));
                 const sa = so.length > 0 ? Math.round(so.reduce((a, o) => a + o.accuracy, 0) / so.length) : 0;
                 const stotal = so.reduce((a, o) => a + o.totalQuestions, 0);
-                const smastered = so.reduce((a, o) => a + o.masteredQuestions, 0);
+                const sm = so.reduce((a, o) => a + o.masteredQuestions, 0);
                 return (
-                  <button key={s} onClick={() => setSubject(s)} className="bg-white rounded-2xl shadow-sm border border-amber-200 p-5 hover:shadow-md transition text-center">
-                    <span className="text-2xl mb-2 block">{s === "বাংলা" ? "🇧🇩" : s === "ইংরেজী" ? "🇬🇧" : s === "গণিত" ? "🔢" : s === "সাধারণ জ্ঞান" ? "🌍" : s === "বিজ্ঞান" ? "🔬" : s === "ভূগোল ও পরিবেশ" ? "🌏" : s === "নৈতিকতা ও সুশাসন" ? "⚖️" : "💰"}</span>
-                    <span className="font-semibold text-amber-900 text-sm">{s}</span>
-                    {stotal > 0 && <div className="mt-2"><div className="w-full h-1.5 bg-gray-200 rounded-full"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} /></div><div className="flex justify-between text-xs text-gray-500 mt-1"><span>{sa}%</span><span>{smastered}/{stotal}</span></div></div>}
-                    {stotal === 0 && <p className="text-xs text-gray-400 mt-1">শুরু করুন</p>}
+                  <button key={s} onClick={() => setSubject(s)} className="bg-white rounded-2xl shadow-sm border border-amber-200 p-4 hover:shadow-md transition text-center">
+                    <span className="text-xl mb-1 block">{"🇧🇩🇬🇧🔢🧠🌏🌍🔬💻🌿⚖️💰".charAt(Object.keys(SUBJECTS).indexOf(s) % 11)}</span>
+                    <span className="font-semibold text-amber-900 text-xs">{s}</span>
+                    {stotal > 0 && <div className="mt-1"><div className="w-full h-1 bg-gray-200 rounded-full"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} /></div><p className="text-xs text-gray-500 mt-0.5">{sa}% ({sm}/{stotal})</p></div>}
                   </button>
                 );
               })}
@@ -181,55 +232,44 @@ export default function Home() {
             <div className="space-y-4">
               <button onClick={() => setSubject(null)} className="text-amber-700 text-sm underline">← বিষয় পরিবর্তন</button>
               <h2 className="text-xl font-bold text-amber-800">{subject}</h2>
-
               {(() => {
                 const sa = subjectOverviews.length > 0 ? Math.round(subjectOverviews.reduce((a, o) => a + o.accuracy, 0) / subjectOverviews.length) : 0;
-                const stotal = subjectOverviews.reduce((a, o) => a + o.totalQuestions, 0);
-                const smastered = subjectOverviews.reduce((a, o) => a + o.masteredQuestions, 0);
-                const stoday = subjectOverviews.reduce((a, o) => a + o.todayCount, 0);
+                const st = subjectOverviews.reduce((a, o) => a + o.totalQuestions, 0);
+                const sm = subjectOverviews.reduce((a, o) => a + o.masteredQuestions, 0);
                 return (
-                  <div className="bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl p-4 text-white shadow-lg">
-                    <div className="flex items-center justify-between mb-2"><span className="font-bold">{subject} অগ্রগতি</span><span>{smastered}/{stotal} মাস্টার্ড</span></div>
+                  <div className="bg-gradient-to-br from-amber-600 to-orange-600 rounded-2xl p-4 text-white shadow">
+                    <div className="flex justify-between mb-2"><span className="font-bold">{subject} অগ্রগতি</span><span>{sm}/{st} মাস্টার্ড</span></div>
                     <div className="w-full h-2 bg-white/20 rounded-full"><div className="h-full bg-white rounded-full" style={{ width: `${sa}%` }} /></div>
-                    <div className="flex justify-between text-xs mt-2 opacity-80"><span>{sa}% নির্ভুলতা</span><span>আজ: {stoday}টি</span></div>
                   </div>
                 );
               })()}
-
               {SUBJECT_TOPICS[subject] && (
-                <div className="space-y-4">
-                  {Object.entries(SUBJECT_TOPICS[subject]).map(([subTopic, topics]) => (
-                    <div key={subTopic} className="bg-white rounded-2xl shadow-sm border border-amber-200 p-4">
-                      <h3 className="font-bold text-amber-800 mb-3">{subTopic}</h3>
-                      <div className="space-y-2">
-                        {topics.map(t => {
-                          const stats = getSubTopicStats(subject, subTopic);
-                          return (
-                            <div key={t} className="flex items-center gap-3">
-                              <span className="w-36 text-xs truncate">{t}</span>
-                              <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div className="h-full bg-amber-500 rounded-full" style={{ width: `${stats.accuracy}%` }} />
-                              </div>
-                              <span className="text-xs text-gray-500 w-16 text-right">
-                                {stats.questions > 0 ? `${stats.accuracy}%` : "—"}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {Object.entries(SUBJECT_TOPICS[subject]).map(([st, tops]) => (
+                    <div key={st} className="bg-white rounded-xl border border-amber-200 p-3">
+                      <h3 className="font-bold text-sm text-amber-800 mb-2">{st}</h3>
+                      {tops.map(t => {
+                        const s = getSubTopicStats(subject, st);
+                        return (
+                          <div key={t} className="flex items-center gap-2 mb-1">
+                            <span className="w-32 text-xs truncate">{t}</span>
+                            <div className="flex-1 h-1.5 bg-gray-200 rounded-full"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${s.accuracy}%` }} /></div>
+                            <span className="text-xs w-10 text-right">{s.questions > 0 ? `${s.accuracy}%` : "—"}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   ))}
                 </div>
               )}
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {SUBJECTS[subject].map(t => {
                   const o = allOverview.find(x => x.topic === t); const has = o && o.totalQuestions > 0;
                   return (
-                    <button key={t} onClick={() => setTopic(t)} className="bg-white rounded-xl border border-amber-200 p-4 hover:bg-amber-50 transition text-left">
-                      <div className="flex items-center justify-between"><span className="font-medium text-amber-900 text-sm">{t}</span>{has && <span className={`text-xs px-2 py-0.5 rounded-full ${o.accuracy >= 80 ? "bg-green-100 text-green-700" : o.accuracy >= 50 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>{o.accuracy}%</span>}</div>
-                      {has && <div className="mt-2"><div className="flex gap-1 text-xs text-gray-500"><span>🟢 {o.masteredQuestions}</span><span>🟡 {o.learningQuestions}</span><span>⚪ {o.newQuestions}</span></div>{o.lastPracticed && <p className="text-xs text-gray-400 mt-1">শেষ: {o.lastPracticed}{o.todayCount > 0 && ` | আজ: ${o.todayCount}টি`}</p>}</div>}
-                      {!has && <p className="text-xs text-gray-400 mt-1">শুরু করুন</p>}
+                    <button key={t} onClick={() => setTopic(t)} className="bg-white rounded-xl border border-amber-200 p-3 hover:bg-amber-50 transition text-left">
+                      <div className="flex justify-between"><span className="font-medium text-amber-900 text-sm">{t}</span>{has && <span className={`text-xs px-2 py-0.5 rounded-full ${o.accuracy >= 80 ? "bg-green-100 text-green-700" : o.accuracy >= 50 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>{o.accuracy}%</span>}</div>
+                      {has && <div className="mt-1 flex gap-1 text-xs text-gray-500"><span>🟢{o.masteredQuestions}</span><span>🟡{o.learningQuestions}</span><span>⚪{o.newQuestions}</span></div>}
+                      {!has && <p className="text-xs text-gray-400">শুরু করুন</p>}
                     </button>
                   );
                 })}
@@ -239,7 +279,7 @@ export default function Home() {
 
           {topic && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between"><button onClick={() => { setSubject(null); setTopic(null); }} className="text-amber-700 text-sm underline">← বিষয় পরিবর্তন</button><span className="text-sm font-medium text-amber-800 bg-amber-100 px-3 py-1 rounded-full">{topic}</span></div>
+              <div className="flex justify-between"><button onClick={() => { setSubject(null); setTopic(null); }} className="text-amber-700 text-sm underline">← বিষয় পরিবর্তন</button><span className="text-sm font-medium bg-amber-100 px-3 py-1 rounded-full">{topic}</span></div>
               <MCQGenerator topic={topic} />
             </div>
           )}
@@ -250,26 +290,13 @@ export default function Home() {
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-amber-800">সার্বিক অগ্রগতি</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-amber-200 text-center"><p className="text-2xl font-bold text-amber-700">{totalQ}</p><p className="text-xs text-gray-500">মোট প্রশ্ন ব্যাংক</p></div>
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-amber-200 text-center"><p className="text-2xl font-bold text-green-600">{totalMastered}</p><p className="text-xs text-gray-500">মাস্টার্ড</p></div>
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-amber-200 text-center"><p className="text-2xl font-bold text-amber-700">{overallAcc}%</p><p className="text-xs text-gray-500">সামগ্রিক নির্ভুলতা</p></div>
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-amber-200 text-center"><p className="text-2xl font-bold text-amber-700">{todayTotal}</p><p className="text-xs text-gray-500">আজকের প্রশ্ন</p></div>
-          </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-amber-200 p-5 overflow-x-auto">
-            <h3 className="font-bold text-lg text-amber-800 mb-3">গত ৩০ দিনের অনুশীলন</h3>
-            <div className="flex items-end justify-between gap-1 min-w-[600px]" style={{ height: 100 }}>{last30.map((d, i) => (<div key={i} className="flex flex-col items-center flex-1 gap-1"><span className="text-[10px] text-gray-500">{d.count || ""}</span><div className="w-full max-w-[12px] bg-amber-400 rounded-t" style={{ height: `${Math.max(3, (d.count / maxD) * 50)}px` }} /><span className="text-[10px] text-gray-400 whitespace-nowrap">{d.label}</span></div>))}</div>
-          </div>
-          <div className="space-y-4">
-            {Object.entries(SUBJECTS).map(([s, topics]) => {
-              const so = allOverview.filter(o => topics.includes(o.topic));
-              const sa = so.length > 0 ? Math.round(so.reduce((a, o) => a + o.accuracy, 0) / so.length) : 0;
-              const stotal = so.reduce((a, o) => a + o.totalQuestions, 0);
-              const smastered = so.reduce((a, o) => a + o.masteredQuestions, 0);
-              return (<div key={s} className="bg-white rounded-2xl shadow-sm border border-amber-200 p-5"><div className="flex items-center justify-between mb-3"><h3 className="font-bold text-amber-800">{s}</h3><span className="text-sm text-gray-500">{smastered}/{stotal} মাস্টার্ড</span></div>{stotal > 0 && <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-3"><div className="h-full bg-amber-500 rounded-full" style={{ width: `${sa}%` }} /></div>}<div className="space-y-1">{topics.map(t => { const o = allOverview.find(x => x.topic === t); return (<div key={t} className="flex items-center justify-between text-sm"><span className="text-gray-700">{t}</span><span className="text-gray-500">{o?.totalQuestions || 0} প্রশ্ন{o?.lastPracticed && ` | শেষ: ${o.lastPracticed}`}</span></div>); })}</div></div>);
-            })}
+            <div className="bg-white rounded-xl p-4 border border-amber-200 text-center"><p className="text-2xl font-bold text-amber-700">{totalQ}</p><p className="text-xs text-gray-500">মোট প্রশ্ন</p></div>
+            <div className="bg-white rounded-xl p-4 border border-amber-200 text-center"><p className="text-2xl font-bold text-green-600">{totalMastered}</p><p className="text-xs text-gray-500">মাস্টার্ড</p></div>
+            <div className="bg-white rounded-xl p-4 border border-amber-200 text-center"><p className="text-2xl font-bold text-amber-700">{overallAcc}%</p><p className="text-xs text-gray-500">নির্ভুলতা</p></div>
+            <div className="bg-white rounded-xl p-4 border border-amber-200 text-center"><p className="text-2xl font-bold text-amber-700">{todayTotal}</p><p className="text-xs text-gray-500">আজ</p></div>
           </div>
           <ExternalTracker onSessionAdded={() => setOverviews(getAllOverviews())} />
-          <div className="mt-6"><h3 className="text-lg font-bold text-amber-800 mb-3 text-center">🤖 AI সহায়ক টুলস</h3><div className="grid grid-cols-3 gap-3">{aiTools.map(tool => (<a key={tool.name} href={tool.url} target="_blank" rel="noopener noreferrer" className={`bg-gradient-to-br ${tool.color} rounded-2xl p-4 text-center shadow-lg hover:scale-105 transition-transform`}><span className="text-2xl block mb-1">{tool.emoji}</span><h4 className="text-white font-bold text-sm">{tool.name}</h4><p className="text-white/60 text-xs mt-1">খুলুন →</p></a>))}</div><p className="text-center text-xs text-gray-400 mt-2">সবগুলোই ফ্রি • কোনো API key লাগবে না</p></div>
+          <div className="mt-6"><h3 className="text-lg font-bold text-amber-800 mb-3 text-center">🤖 AI সহায়ক</h3><div className="grid grid-cols-3 gap-3">{aiTools.map(tool => (<a key={tool.name} href={tool.url} target="_blank" rel="noopener noreferrer" className={`bg-gradient-to-br ${tool.color} rounded-2xl p-4 text-center shadow-lg hover:scale-105 transition-transform`}><span className="text-2xl block mb-1">{tool.emoji}</span><h4 className="text-white font-bold text-sm">{tool.name}</h4></a>))}</div></div>
         </div>
       )}
     </main>
